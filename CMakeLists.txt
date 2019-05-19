@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 2.8.3)
 project(f110_occgrid)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+add_compile_options(-std=c++11)
+set (CMAKE_CXX_FLAGS -O3)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -17,6 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   tf
 )
+find_package(Eigen3 REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -108,10 +110,10 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES f110_occgrid
-#  CATKIN_DEPENDS geometry_msgs nav_msgs race roscpp rospy sensor_msgs std_msgs tf
-#  DEPENDS system_lib
+  INCLUDE_DIRS include
+  LIBRARIES f110_occgrid
+  CATKIN_DEPENDS geometry_msgs nav_msgs race roscpp rospy sensor_msgs std_msgs tf
+  DEPENDS system_lib
 )
 
 ###########
@@ -121,8 +123,9 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
+  ${Eigen_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -138,7 +141,11 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/f110_occgrid_node.cpp)
+add_executable(gridmap_node src/gridmap_node.cpp src/gridmap.cpp)
+add_dependencies(gridmap_node ${catkin_EXPORTED_TARGETS})
+
+# add_executable(gridmap_viz_node src/gridmap_viz.cpp)
+# add_dependencies(gridmap_viz_node ${catkin_EXPORTED_TARGETS})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -148,10 +155,14 @@ include_directories(
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-# add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(gridmap_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(gridmap_viz_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(${PROJECT_NAME}_node
+target_link_libraries(gridmap_node
+  ${catkin_LIBRARIES}
+)
+# target_link_libraries(gridmap_viz_node
 #   ${catkin_LIBRARIES}
 # )
 

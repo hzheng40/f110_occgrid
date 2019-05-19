@@ -1,7 +1,7 @@
 // ros stuff
 #include <ros/ros.h>
 #include <std_msgs/Float64MultiArray.h>
-#include <sensor_msgs/LaserScan>
+#include <sensor_msgs/LaserScan.h>
 #include <nav_msgs/OccupancyGrid.h>
 #include <std_msgs/ColorRGBA.h>
 #include <geometry_msgs/Point.h>
@@ -33,9 +33,9 @@ private:
     ros::Subscriber map_sub;
 
     // underlying data structures
-    Eigen::MatrixXf env_layer;
-    Eigen::MatrixXf static_layer;
-    Eigen::MatrixXf dynamic_layer;
+    Eigen::MatrixXi env_layer;
+    Eigen::MatrixXi static_layer;
+    Eigen::MatrixXi dynamic_layer;
 
     bool INIT;
     float map_resolution; // m/cell
@@ -45,9 +45,9 @@ private:
     void scan_callback(const sensor_msgs::LaserScan::ConstPtr& msg);
     void map_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg);
 
-    Eigen::MatrixXf get_env_layer();
-    Eigen::MatrixXf get_static_layer();
-    Eigen::MatrixXf get_dynamic_layer();
+    Eigen::MatrixXi get_env_layer();
+    Eigen::MatrixXi get_static_layer();
+    Eigen::MatrixXi get_dynamic_layer();
 
     float get_value_at_position(int x, int y);
     float get_value_at_index(int row, int column);
