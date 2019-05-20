@@ -28,20 +28,27 @@ Gridmap::Gridmap(ros::NodeHandle &nh) : nh_(nh) {
     ROS_INFO("Map Metadata Loaded");
     INIT = true;
 }
+
+// callbacks
 void Gridmap::map_callback(const nav_msgs::OccupancyGrid::ConstPtr& map_msg) {
-    if (!INIT) return;
+    // reroute to env_layer
+    env_pub.publish(map_msg);
+    // if (!INIT)? if slow only run this once with flag
     std::vector<int8_t> map_data = map_msg->data;
     // convert to int
     std::vector<int> map_data_int(map_data.begin(), map_data.end());
-    // reroute to env_layer
-    env_pub.publish(map_msg);
     // save data to attribute
     int* data_start = map_data_int.data();
     Eigen::Map<Eigen::MatrixXi>(data_start, env_layer.rows(), env_layer.cols()) = env_layer;
 }
+
 void Gridmap::scan_callback(const sensor_msgs::LaserScan::ConstPtr& scan_msg) {
     std::vector<float> ranges = scan_msg->ranges;
 }
+
+
+
+// utils
 Eigen::MatrixXi Gridmap::get_env_layer() {
     return env_layer;
 }
