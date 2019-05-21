@@ -61,7 +61,24 @@ void Gridmap::scan_callback(const sensor_msgs::LaserScan::ConstPtr& scan_msg) {
     // 2. find overlap between dynamic and env, remove overlaps in dynamic
     // 3. find overlap between dynamic and static, increment value in static, and if the value over threshold, remove overlaps in dynamic.
     std::vector<float> ranges = scan_msg->ranges;
-    
+    // put scan into dynamic layer
+    for (int i=0; i<SCAN_COUNT; i++) {
+        double range = ranges[i];
+        if (std::isnan(range) || std::isinf(range)) continue;
+        double x = range*cos(angles_vector[i]), y = range*sin(angles_vector[i]);
+        int grid_x = x/map_resolution, grid_y = y/map_resolution;
+        // check bounds
+        if (out_of_bounds(grid_x, grid_y)) continue;
+        // add inflation
+        for (int i_f=-INFLATION; i_f<=INFLATION; i_f++) {
+            for (int j_f=-INFLATION; j_f<=INFLATION; j_f++) {
+                int current_x = grid_x - i_f, current_y = grid_y - j_f;
+                if (out_of_bounds(current_x, current_y)) continue;
+                dynamic_layer[current_y, current_x] = 100;
+            }
+        }
+    }
+    // find overlap between dynamic and env
 }
 
 // utils
@@ -83,6 +100,10 @@ std::vector<int> Gridmap::ind_2_rc(int ind) {
     rc.push_back(floor(ind/map_width));
     rc.push_back(ind%map_width + floor(ind/map_width));
     return rc;
+}
+
+bool Gridmap::out_of_bounds(int x, int y) {
+    return (x < 0 || y < 0 || x >= map_height || y >= map_width);
 }
 
 // via r c
