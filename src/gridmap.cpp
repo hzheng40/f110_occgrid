@@ -25,6 +25,9 @@ Gridmap::Gridmap(ros::NodeHandle &nh) : nh_(nh) {
     map_width = env_metadata_msg.width;
     map_height = env_metadata_msg.height;
     map_origin = env_metadata_msg.origin;
+    geometry_msgs::Point origin = map_origin.position;
+    origin_x = origin.x;
+    origin_y = origin.y;
     ROS_INFO("Map Metadata Loaded");
     INIT = true;
 }
@@ -43,24 +46,67 @@ void Gridmap::map_callback(const nav_msgs::OccupancyGrid::ConstPtr& map_msg) {
 }
 
 void Gridmap::scan_callback(const sensor_msgs::LaserScan::ConstPtr& scan_msg) {
+    // fill laser params if it's the first time receiving info
+    if (!LASER_INIT) {
+        std::vector<float> ranges = scan_msg->ranges;
+        SCAN_COUNT = ranges.size();
+        angles_vector.reserve(SCAN_COUNT);
+        for (int i=0; i<SCAN_COUNT; i++) {
+            angles_vector[i] = scan_msg->angle_min + scan_msg->angle_increment*i;
+        }
+        LASER_INIT = true;
+    }
+    // steps in laser callback:
+    // 1. put everything in dynamic layer
+    // 2. find overlap between dynamic and env, remove overlaps in dynamic
+    // 3. find overlap between dynamic and static, increment value in static, and if the value over threshold, remove overlaps in dynamic.
     std::vector<float> ranges = scan_msg->ranges;
+    
 }
-
-
 
 // utils
 Eigen::MatrixXi Gridmap::get_env_layer() {
     return env_layer;
 }
+
 Eigen::MatrixXi Gridmap::get_static_layer() {
     return static_layer;
 }
+
 Eigen::MatrixXi Gridmap::get_dynamic_layer() {
     return dynamic_layer;
 }
-float Gridmap::get_value_at_position(int x, int y) {
+
+std::vector<int> Gridmap::ind_2_rc(int ind) {
+    //[row, col]
+    std::vector<int> rc(2);
+    rc.push_back(floor(ind/map_width));
+    rc.push_back(ind%map_width + floor(ind/map_width));
+    return rc;
+}
+
+// via r c
+geometry_msgs::Point Gridmap::cell_2_coord(int row, int col) {
+    geometry_msgs::Point coord;
+    coord.x = origin_x + col*map_resolution;
+    coord.y = origin_y - row*map_resolution;
+    return coord;
+}
+// via 1D index
+geometry_msgs::Point Gridmap::cell_2_coord(int ind) {
+    std::vector<int> rc = ind_2_rc(ind);
+    geometry_msgs::Point coord;
+    coord.x = origin_x + rc[1]*map_resolution;
+    coord.y = origin_y - rc[0]*map_resolution;
+    return coord;
+}
+// returns 1D index
+int Gridmap::coord_2_cell_rc(float x, float y){
     return 0;
 }
-float Gridmap::get_value_at_index(int row, int column) {
-    return 0;
+// returns row col index
+std::vector<int> Gridmap::coord_2_cell_1d(float x, float y) {
+    int ind = coord_2_cell_rc(x, y);
+    std::vector<int> rc = ind_2_rc(ind);
+    return rc;
 }

@@ -37,10 +37,17 @@ private:
     Eigen::MatrixXi static_layer;
     Eigen::MatrixXi dynamic_layer;
 
+    // map params
     bool INIT;
     float map_resolution; // m/cell
     int map_width, map_height; // cells
     geometry_msgs::Pose map_origin; // cell(0,0), [m, m, rad]
+    float origin_x, origin_y;
+
+    // laser params
+    bool LASER_INIT;
+    std::vector<float> angles_vector;
+    int SCAN_COUNT;
 
     void scan_callback(const sensor_msgs::LaserScan::ConstPtr& msg);
     void map_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg);
@@ -49,6 +56,10 @@ private:
     Eigen::MatrixXi get_static_layer();
     Eigen::MatrixXi get_dynamic_layer();
 
-    float get_value_at_position(int x, int y);
-    float get_value_at_index(int row, int column);
+    std::vector<int> ind_2_rc(int ind);
+    geometry_msgs::Point cell_2_coord(int row, int col);
+    geometry_msgs::Point cell_2_coord(int ind);
+
+    int coord_2_cell_rc(float x, float y);
+    std::vector<int> coord_2_cell_1d(float x, float y);
 };
