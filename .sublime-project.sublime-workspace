@@ -1,0 +1,809 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"ren",
+				"reconstruct_path"
+			],
+			[
+				"unifo",
+				"uniform_cost"
+			],
+			[
+				"mea",
+				"measured_quat"
+			],
+			[
+				"z_kbar",
+				"z_kbar_quat"
+			],
+			[
+				"z_kb",
+				"z_kbar_quat_comp"
+			],
+			[
+				"rot",
+				"rotmat_2_quat"
+			],
+			[
+				"smoot",
+				"smoothed_wpt"
+			],
+			[
+				"pure_pu",
+				"pure_pursuit_sim.rviz\t(rrt_sim.launch)"
+			],
+			[
+				"GRID_",
+				"GRID_LENGTH"
+			],
+			[
+				"CAR",
+				"CAR_FREE_ROWS\t(rrt.cpp)"
+			],
+			[
+				"RRT",
+				"RRTVIS"
+			],
+			[
+				"fra",
+				"frame_id"
+			],
+			[
+				"Vecot",
+				"Vector2d"
+			],
+			[
+				"Vecto",
+				"Vector2d"
+			],
+			[
+				"near",
+				"nearest_node"
+			],
+			[
+				"ce",
+				"CELL_SIZE"
+			],
+			[
+				"Ack",
+				"AckermannDriveStamped"
+			],
+			[
+				"Acker",
+				"AckermannDriveStamped\t(joy_teleop.yaml)"
+			],
+			[
+				"dri",
+				"drive_param\t(pure_pursuit.cpp)"
+			],
+			[
+				"Poi",
+				"PointStamped\t(pure_pursuit.py)"
+			],
+			[
+				"drv",
+				"drive_param\t(pure_pursuit.py)"
+			],
+			[
+				"uni",
+				"unit_vec"
+			],
+			[
+				"Trans",
+				"TransformListener\t(pure_pursuit.py)"
+			],
+			[
+				"file",
+				"filename_actual"
+			],
+			[
+				"USE",
+				"USE_GRID_SEARCH"
+			],
+			[
+				"exac",
+				"exact_minimization"
+			],
+			[
+				"transof",
+				"transformed_pts"
+			],
+			[
+				"get_in",
+				"get_interval_vec"
+			],
+			[
+				"transor",
+				"transformed_pts"
+			],
+			[
+				"in",
+				"intensities"
+			],
+			[
+				"prev_",
+				"prev_pose"
+			],
+			[
+				"Ve",
+				"Vector2f\t(scan_match.h)"
+			],
+			[
+				"Veco",
+				"Vector4f"
+			],
+			[
+				"ninja_",
+				"ninja_turtles_scan_matching)/launch\t(vis.launch)"
+			],
+			[
+				"clust",
+				"clustered_scan"
+			],
+			[
+				"IN",
+				"INS_IDX"
+			],
+			[
+				"NUM_",
+				"NUM_CLUSTERS"
+			],
+			[
+				"NUM",
+				"NUM_CLUSTERS"
+			],
+			[
+				"clus",
+				"clustered_scan"
+			],
+			[
+				"scan_cal",
+				"scan_callback_dbscan"
+			],
+			[
+				"Fla",
+				"Float64"
+			],
+			[
+				"THRE",
+				"JUMP_THRESH"
+			],
+			[
+				"CHA",
+				"CHANGE_THRESH"
+			],
+			[
+				"T",
+				"TOGGLE"
+			],
+			[
+				"speed",
+				"speed_pub"
+			],
+			[
+				"lidar",
+				"lidar_gap\t(find_gap.py)"
+			],
+			[
+				"ninja_t",
+				"ninja_turtles_gap_finding\t(find_gap.py)"
+			],
+			[
+				"U",
+				"USE_MTCNN"
+			],
+			[
+				"faces_li",
+				"faces_list_dlib"
+			],
+			[
+				"g",
+				"group_lg.png\tw:4096 h:2304"
+			],
+			[
+				"image_pre",
+				"image_preprocessor"
+			],
+			[
+				"I",
+				"IMAGE_SIZE\t(image_preprocessor_dlib.py)"
+			],
+			[
+				"dlib",
+				"dlib_processor"
+			],
+			[
+				"image_prepro",
+				"image_preprocessor_dlib"
+			],
+			[
+				"image_pr",
+				"image_preprocessor\t(app.py)"
+			],
+			[
+				"thresh",
+				"thresholds_in"
+			],
+			[
+				"image_preproc",
+				"image_preprocessor_dlib\t(app.py)"
+			],
+			[
+				"entry",
+				"entry_img\t(app.py)"
+			],
+			[
+				"group",
+				"group.jpg\tw:2048 h:1366"
+			],
+			[
+				"kidn",
+				"kidney.png\tw:423 h:517"
+			],
+			[
+				"bill",
+				"billy2.jpeg\tw:200 h:200"
+			],
+			[
+				"klaus",
+				"klaus3.jpeg\tw:200 h:200"
+			],
+			[
+				"luka",
+				"luka.jpeg\tw:460 h:460"
+			],
+			[
+				"k",
+				"klausz.jpeg\tw:142 h:134"
+			],
+			[
+				"luk",
+				"lukas.jpg\tw:1000 h:563"
+			],
+			[
+				"euc_di",
+				"euc_dist_luka"
+			],
+			[
+				"E",
+				"EUC_THRESH\t(demo_util.py)"
+			],
+			[
+				"no-",
+				"no-cache-dir\t(Dockerfile.serving-gpu)"
+			],
+			[
+				"MOD",
+				"MODEL_BASE_PATH"
+			],
+			[
+				"MODE",
+				"MODEL_BASE_PATH\t(Dockerfile.serving-min)"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "src/gridmap.cpp",
+			"settings":
+			{
+				"buffer_size": 4709,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/gridmap_viz.cpp",
+			"settings":
+			{
+				"buffer_size": 4049,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "include/f110_occgrid/gridmap.h",
+			"settings":
+			{
+				"buffer_size": 1659,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "include/f110_occgrid/gridmap_viz.h",
+			"settings":
+			{
+				"buffer_size": 843,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"instll",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: ",
+				"Package Control: Install Package"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"remo",
+				"Package Control: Remove Package"
+			],
+			[
+				"remove",
+				"Package Control: Remove Package"
+			],
+			[
+				"instal",
+				"Package Control: Install Package"
+			],
+			[
+				"pack",
+				"Package Control: Remove Package"
+			],
+			[
+				"ins\t",
+				"Package Control: Install Package"
+			],
+			[
+				"pa",
+				"Package Control: Install Package"
+			],
+			[
+				"instal\t",
+				"Package Control: Install Package"
+			],
+			[
+				"packa",
+				"Package Control: Install Package"
+			],
+			[
+				"paci\t",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: install",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/home/billyzheng/catkin_ws/src/f110_occgrid",
+		"/home/billyzheng/catkin_ws/src/f110_occgrid/include",
+		"/home/billyzheng/catkin_ws/src/f110_occgrid/include/f110_occgrid",
+		"/home/billyzheng/catkin_ws/src/f110_occgrid/src"
+	],
+	"file_history":
+	[
+		"/home/billyzheng/catkin_ws/src/f110_occgrid/.sublime-project",
+		"/home/billyzheng/catkin_ws/src/f110_occgrid/src/gridmap_viz.cpp",
+		"/home/billyzheng/catkin_ws/src/f110_occgrid/src/gridmap.cpp",
+		"/home/billyzheng/catkin_ws/src/f110_occgrid/README.html",
+		"/home/billyzheng/.config/sublime-text-3/Packages/All Autocomplete/All Autocomplete.sublime-settings",
+		"/home/billyzheng/catkin_ws/src/f110_occgrid/README.md",
+		"/home/billyzheng/catkin_ws/src/racecar_simulator/launch/simulate.launch",
+		"/home/billyzheng/catkin_ws/src/racecar_simulator/launch/racecar_model.launch",
+		"/home/billyzheng/catkin_ws/src/racecar_simulator/params.yaml",
+		"/home/billyzheng/spring2019/challenge_1/src/challenge_1_test.py",
+		"/home/billyzheng/spring2019/ese650/hw/hw5/run_pendulum.py",
+		"/home/billyzheng/spring2019/challenge_1/src/waypoint.py",
+		"/home/billyzheng/spring2019/ese650/hw/hw5/pendulum.py",
+		"/home/billyzheng/spring2019/ese650/hw/hw2/estimate_rot.py",
+		"/home/billyzheng/sanus_face_server/scripts/Example.py",
+		"/home/billyzheng/sanus_face_server/scripts/sns.py",
+		"/home/billyzheng/sanus_face_server/scripts/photobooth.py",
+		"/home/billyzheng/sanus_face_server/tests/graph_tests.py",
+		"/home/billyzheng/sanus_face_server/scripts/rest_inference_test.py",
+		"/home/billyzheng/sanus_face_server/custom_clients/add_face_client.py",
+		"/home/billyzheng/catkin_ws/src/drone_test/CMakeLists.txt",
+		"/home/billyzheng/catkin_ws/src/ninja_turtles_rrt/CMakeLists.txt",
+		"/home/billyzheng/catkin_ws/src/ninja_turtles_rrt/include/ninja_turtles_rrt/rrt.h",
+		"/home/billyzheng/catkin_ws/src/ninja_turtles_rrt/src/vis_tree.cpp",
+		"/home/billyzheng/catkin_ws/src/ninja_turtles_rrt/include/ninja_turtles_rrt/vis_tree.h",
+		"/home/billyzheng/catkin_ws/src/ninja_turtles_rrt/launch/rrt_node.launch",
+		"/home/billyzheng/catkin_ws/src/ninja_turtles_rrt/launch/rrt_sim.launch",
+		"/home/billyzheng/catkin_ws/src/ninja_turtles_rrt/src/rrt.cpp",
+		"/home/billyzheng/catkin_ws/src/ninja_turtles_rrt/launch/rrt.launch",
+		"/home/billyzheng/catkin_ws/src/ninja_turtles_rrt/.clang_complete",
+		"/home/billyzheng/catkin_ws/src/ninja_turtles_rrt/scripts/vis_tree.py",
+		"/home/billyzheng/catkin_ws/src/ninja_turtles_pure_pursuit/src/pure_pursuit.cpp",
+		"/home/billyzheng/catkin_ws/src/ninja_turtles_rrt/src/rrt_node.cpp",
+		"/home/billyzheng/catkin_ws/src/ninja_turtles_pure_pursuit/src/pure_pursuit_node.cpp",
+		"/home/billyzheng/catkin_ws/src/ninja_turtles_pure_pursuit/CMakeLists.txt",
+		"/home/billyzheng/catkin_ws/src/ninja_turtles_rrt/package.xml",
+		"/home/billyzheng/catkin_ws/src/ninja_turtles_pure_pursuit/package.xml",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_rrt/.clang_complete",
+		"/home/billyzheng/f110_ws/src/f110-fall2018-skeletons/system/racecar/racecar/launch/teleop.launch",
+		"/home/billyzheng/f110_ws/src/f110-fall2018-skeletons/system/racecar/racecar/scripts/joy_teleop.py",
+		"/home/billyzheng/f110_ws/src/f110-fall2018-skeletons/system/racecar/racecar/launch/includes/racecar-v2-teleop.launch.xml",
+		"/home/billyzheng/f110_ws/src/f110-fall2018-skeletons/system/racecar/racecar/launch/includes/common/joy_teleop.launch.xml",
+		"/home/billyzheng/f110_ws/src/f110-fall2018-skeletons/system/ackermann_msgs/msg/AckermannDrive.msg",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_pure_pursuit/package.xml",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_pure_pursuit/scripts/pure_pursuit.py",
+		"/home/billyzheng/.config/sublime-text-3/Packages/C++11/messages/install.txt",
+		"/home/billyzheng/.config/sublime-text-3/Packages/User/C++11.sublime-settings",
+		"/home/billyzheng/.config/sublime-text-3/Packages/C++11/C++11.sublime-settings",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_rrt/CMakeLists.txt",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_rrt/package.xml",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_pure_pursuit/CMakeLists.txt",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_scan_matching/CMakeLists.txt",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_pure_pursuit/launch/pure_pursuit_node.launch",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_pure_pursuit/include/ninja_turtles_pure_pursuit/pure_pursuit.h",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_pure_pursuit/src/pure_pursuit_node.cpp",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_pure_pursuit/scripts/visualize_markers.py",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_pure_pursuit/launch/pure_pursuit_sim.launch",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_pure_pursuit/src/pure_pursuit.cpp",
+		"/home/billyzheng/f110_ws/src/f110-fall2018-skeletons/simulator/f1_10_sim/race/CMakeLists.txt",
+		"/home/billyzheng/f110_ws/src/f110-fall2018-skeletons/simulator/f1_10_sim/race/package.xml",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_scan_matching/src/scan_match.cpp",
+		"/home/billyzheng/f110_ws/src/wp-2018-11-04-22-13-12.csv",
+		"/home/billyzheng/Downloads/new/codefromanotherHW.py",
+		"/home/billyzheng/Downloads/partio_example/main.cpp",
+		"/home/billyzheng/Downloads/new/currentcode.py",
+		"/home/billyzheng/Downloads/new/partA.py",
+		"/home/billyzheng/Downloads/new/partB.py",
+		"/home/billyzheng/Downloads/codefromanotherHW.py",
+		"/home/billyzheng/Downloads/currentcode.py",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_scan_matching/scripts/scan_match_solver.py",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_pure_pursuit/waypoints/levine-waypoints.csv",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_pure_pursuit/scripts/err_analysis.py",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_scan_matching/scripts/scan_match_node.py",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_pure_pursuit/scripts/visualize_curr_wpt.py",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_pure_pursuit/scripts/sim_connector.py",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_pure_pursuit/scripts/remap_gazebo_pose.py",
+		"/home/billyzheng/f110_ws/src/f110-fall2018-skeletons/labs/lab_pure_pursuit/scripts/pure_pursuit.py",
+		"/home/billyzheng/f110_ws/src/f110-fall2018-skeletons/labs/lab_pure_pursuit/waypoints/levine-waypoints.csv",
+		"/home/billyzheng/f110_ws/src/f110-fall2018-skeletons/labs/lab_pure_pursuit/launch/pure_pursuit_sim.launch",
+		"/home/billyzheng/f110_ws/src/f110-fall2018-skeletons/labs/lab_pure_pursuit/launch/pure_pursuit.launch",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_scan_matching/scripts/scan_match_tf_node.py",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_scan_matching/launch/scan_matching.launch",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_scan_matching/scripts/scan_match_exact.py",
+		"/home/billyzheng/snow/SnowHoudini/ramshorn_fx_mpm_snow_otl_stable.otl",
+		"/home/billyzheng/partio/src/data/scatter.bgeo",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_scan_matching/launch/real_world_vis.launch",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_scan_matching/launch/demo_pkg.launch",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_scan_matching/launch/vis.launch",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_wall_following/scripts/pid_error.py",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_scan_matching/launch/real_world_scan_matching.launch",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_scan_matching/scripts/scan_match.py",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_scan_matching/src/scan_match_node.cpp",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_scan_matching/include/ninja_turtles_scan_matching/scan_match.h",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_scan_matching/package.xml",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_wall_following/scripts/visualize.py",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_wall_following/instructions/instructions.csv",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_gap_finding/scripts/find_gap.py",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_wall_following/scripts/control.py",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_gap_finding/launch/gap_finding_offline_rviz.launch",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_wall_following/launch/real_world_wall_following.launch",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_wall_following/launch/wall_following.launch",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_wall_following/launch/gazebo.launch",
+		"/home/billyzheng/f110_ws/src/f110-fall2018-skeletons/labs/gap_finding/scripts/visualize_gap_finding.py",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_wall_following/config/instructions.csv",
+		"/home/billyzheng/f110_ws/src/f110-fall2018-skeletons/labs/gap_finding/scripts/find_gap.py",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_gap_finding/launch/gap_finding_realtime_rviz.launch",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_wall_following/README",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_wall_following/scripts/ninja_turtles_analysis.py",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_wall_following/package.xml",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_wall_following/CMakeLists.txt",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_wall_following/msg/Analysis.msg",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_gap_finding/CMakeLists.txt",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_gap_finding/package.xml",
+		"/home/billyzheng/f110_ws/src/f110-fall2018-skeletons/labs/wall_following/scripts/control.py",
+		"/home/billyzheng/catkin_ws_build/src/event_vio/.gitignore",
+		"/home/billyzheng/sanus_face_server/custom_clients/simple_graph.py",
+		"/home/billyzheng/sanus_face_server/Dockerfile.flask-app-gpu",
+		"/home/billyzheng/sanus_face_server/custom_clients/id_client.py",
+		"/home/billyzheng/f110_ws/src/f110-fall2018-skeletons/simulator/f1_10_sim/race/scripts/keyboard.py",
+		"/home/billyzheng/f110_ws/src/f110-fall2018-skeletons/labs/gap_finding/scripts/sim_connector.py",
+		"/home/billyzheng/f110_ws/src/f110-fall2018-skeletons/labs/gap_finding/launch/gap_finding_sim.launch",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_gap_finding/msg/gap.msg",
+		"/home/billyzheng/f110_ws/src/f110-fall2018-skeletons/simulator/racecar-simulator/racecar_control/scripts/keyboard_teleop.py",
+		"/home/billyzheng/f110_ws/src/f110-fall2018-skeletons/labs/gap_finding/msg/pid_input.msg",
+		"/home/billyzheng/f110_ws/src/f110-fall2018-skeletons/labs/gap_finding/msg/drive_values.msg",
+		"/home/billyzheng/f110_ws/src/f110-fall2018-skeletons/labs/gap_finding/msg/drive_param.msg",
+		"/home/billyzheng/f110_ws/src/f110-fall2018-skeletons/labs/gap_finding/scripts/dead_mans_switch.py",
+		"/home/billyzheng/f110_ws/src/ninja_turtles_find_gap/msg/gaps.msg"
+	],
+	"find":
+	{
+		"height": 26.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": true,
+		"find_history":
+		[
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "src/gridmap.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4709,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								34,
+								34
+							]
+						],
+						"settings":
+						{
+							"markdonw_live_preview_last_run": 1558461286.9,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "src/gridmap_viz.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4049,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"markdonw_live_preview_last_run": 1558461289.15,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				}
+			]
+		},
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 2,
+					"file": "include/f110_occgrid/gridmap.h",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1659,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								489,
+								489
+							]
+						],
+						"settings":
+						{
+							"markdonw_live_preview_last_run": 1558461168.58,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "include/f110_occgrid/gridmap_viz.h",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 843,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								559,
+								559
+							]
+						],
+						"settings":
+						{
+							"markdonw_live_preview_last_run": 1558461170.16,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 26.0
+	},
+	"input":
+	{
+		"height": 69.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			],
+			[
+				1,
+				0,
+				2,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			0.5,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"output.markdown":
+	{
+		"height": 138.0
+	},
+	"output.mdpopups":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": ".sublime-project",
+	"replace":
+	{
+		"height": 48.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 151.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

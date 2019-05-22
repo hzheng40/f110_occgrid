@@ -43,20 +43,27 @@ private:
     int map_width, map_height; // cells
     geometry_msgs::Pose map_origin; // cell(0,0), [m, m, rad]
     float origin_x, origin_y;
+    int STATIC_THRESH; // threshold for value that's considered static obs
 
     // laser params
     bool LASER_INIT;
     std::vector<float> angles_vector;
     int SCAN_COUNT;
 
+    // occgrid params
+    int INFLATION;
+
     void scan_callback(const sensor_msgs::LaserScan::ConstPtr& msg);
     void map_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg);
+
+    std::vector<int> find_nonzero(Eigen::ArrayXi arr);
 
     Eigen::MatrixXi get_env_layer();
     Eigen::MatrixXi get_static_layer();
     Eigen::MatrixXi get_dynamic_layer();
 
     std::vector<int> ind_2_rc(int ind);
+    bool out_of_bounds(int x, int y);
     geometry_msgs::Point cell_2_coord(int row, int col);
     geometry_msgs::Point cell_2_coord(int ind);
 

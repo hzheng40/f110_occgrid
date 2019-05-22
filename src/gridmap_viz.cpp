@@ -49,12 +49,14 @@ void GridmapViz::env_callback(const nav_msgs::OccupancyGrid::ConstPtr& env_layer
     col.g = 1.0;
     col.b = 1.0;
 
-    for (int i=0; i<env_layer.size(); i++){
+    for (int i=0; i<(env_layer.rows()*env_layer.cols()); i++){
         geometry_msgs::Point cube;
-        cube.x = msg->data[i*3];
-        cube.y = msg->data[i*3+1];
-        marker.points.push_back(cube);
-        marker.colors.push_back(col);
+        if (env_layer[i] != 0) {
+            cube.x = msg->data[i*3];
+            cube.y = msg->data[i*3+1];
+            marker.points.push_back(cube);
+            marker.colors.push_back(col);
+        }
     }
     env_viz_pub.publish(marker);
 }

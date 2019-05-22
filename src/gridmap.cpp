@@ -29,20 +29,29 @@ Gridmap::Gridmap(ros::NodeHandle &nh) : nh_(nh) {
     origin_x = origin.x;
     origin_y = origin.y;
     ROS_INFO("Map Metadata Loaded");
-    INIT = true;
+
+    // params/attr init
+    INFLATION = 3;
+    STATIC_THRESH = 3; // if seen n times then considered static obs
+    env_layer = Eigen::MatrixXi::Zero(map_height, map_width);
+    static_layer = Eigen::MatrixXi::Zero(map_height, map_width);
+    dynamic_layer = Eigen::MatrixXi::Zero(map_height, map_width);
 }
 
 // callbacks
 void Gridmap::map_callback(const nav_msgs::OccupancyGrid::ConstPtr& map_msg) {
     // reroute to env_layer
     env_pub.publish(map_msg);
-    // if (!INIT)? if slow only run this once with flag
+    // if (INIT)? if slow only run this once with flag
+    if (INIT) return;
     std::vector<int8_t> map_data = map_msg->data;
     // convert to int
     std::vector<int> map_data_int(map_data.begin(), map_data.end());
     // save data to attribute
+    // map value 100 if occupied, 0 if free
     int* data_start = map_data_int.data();
     Eigen::Map<Eigen::MatrixXi>(data_start, env_layer.rows(), env_layer.cols()) = env_layer;
+    INIT = true;
 }
 
 void Gridmap::scan_callback(const sensor_msgs::LaserScan::ConstPtr& scan_msg) {
@@ -74,14 +83,48 @@ void Gridmap::scan_callback(const sensor_msgs::LaserScan::ConstPtr& scan_msg) {
             for (int j_f=-INFLATION; j_f<=INFLATION; j_f++) {
                 int current_x = grid_x - i_f, current_y = grid_y - j_f;
                 if (out_of_bounds(current_x, current_y)) continue;
-                dynamic_layer[current_y, current_x] = 100;
+                dynamic_layer(current_y, current_x) = 100;
             }
         }
     }
-    // find overlap between dynamic and env
+
+    // find overlap between dynamic and env, 1 if true, 0 if false
+    Eigen::ArrayXi env_mask = (env_layer.array() > 0).cast<int>();
+    Eigen::ArrayXi dynamic_mask = (dynamic_layer.array() > 0).cast<int>();
+    Eigen::ArrayXi env_dynamic_overlap = ((env_mask + dynamic_mask) > 1).cast<int>();
+    std::vector<int> env_dynamic_overlap_ind = find_nonzero(env_dynamic_overlap);
+    // removing hits from dynamic layer if overlapped
+    for (int i_o=0; i_o<env_dynamic_overlap_ind.size(); i_o++) {
+        std::vector<int> current_ind = ind_2_rc(env_dynamic_overlap_ind[i_o]);
+        dynamic_layer(current_ind[0], current_ind[1]) = 0;
+    }
+    // find overlap between new dynamic and static, 1 if true, 0 if false
+    Eigen::ArrayXi dynamic_mask_new = (dynamic_layer.array() > 0).cast<int>();
+    Eigen::ArrayXi static_mask = (static_layer.array() > 0).cast<int>();
+    Eigen::ArrayXi dynamic_static_overlap = ((dynamic_mask_new + static_mask) > 1).cast<int>();
+    std::vector<int> dynamic_static_overlap_ind = find_nonzero(dynamic_static_overlap);
+    // increment static layer values for overlap, remove hits over thresh from dynamic
+    for (int i_d=0; i_d<dynamic_static_overlap_ind.size(); i_d++) {
+        std::vector<int> current_ind = ind_2_rc(dynamic_static_overlap_ind[i_d]);
+        static_layer(current_ind[0], current_ind[1])++;
+        if (static_layer(current_ind[0], current_ind[1]) >= STATIC_THRESH) {
+            dynamic_layer(current_ind[0], current_ind[1]) = 0;
+        }
+    }
+
 }
 
 // utils
+std::vector<int> find_nonzero(Eigen::ArrayXi arr) {
+    std::vector<int> ind;
+    for (int i=0; i<arr.size(); i++) {
+        if (arr[i] > 0) {
+            ind.push_back(i);
+        }
+    }
+    return ind;
+}
+
 Eigen::MatrixXi Gridmap::get_env_layer() {
     return env_layer;
 }
