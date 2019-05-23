@@ -33,9 +33,12 @@ Gridmap::Gridmap(ros::NodeHandle &nh) : nh_(nh) {
     // params/attr init
     INFLATION = 3;
     STATIC_THRESH = 3; // if seen n times then considered static obs
-    env_layer = Eigen::MatrixXi::Zero(map_height, map_width);
-    static_layer = Eigen::MatrixXi::Zero(map_height, map_width);
-    dynamic_layer = Eigen::MatrixXi::Zero(map_height, map_width);
+    Eigen::Matrix<int, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> env_layer;
+    env_layer.setZero();
+    Eigen::Matrix<int, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> static_layer;
+    static_layer.setZero();
+    Eigen::Matrix<int, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> dynamic_layer;
+    dynamic_layer.setZero();
 }
 
 // callbacks
@@ -112,10 +115,46 @@ void Gridmap::scan_callback(const sensor_msgs::LaserScan::ConstPtr& scan_msg) {
         }
     }
 
+    // publish to the topics
+    pub_layers();
 }
 
 // utils
-std::vector<int> find_nonzero(Eigen::ArrayXi arr) {
+// publish layers, default: no argument, publishes all current layer via attr
+void Gridmap::pub_layers() {
+    // env layer not needed, already done in map callback
+    // static layer
+    nav_msgs::OccupancyGrid static_layer_msg;
+    std::vector<int> static_data;
+    Eigen::Map<Eigen::MatrixXi>(static_data.data(), map_height, map_width) = static_layer;
+    // convert to int8
+    std::vector<int8_t> static_data_int8(static_data.begin(), static_data.end());
+    static_layer_msg.data = static_data_int8;
+
+    // dynamic layer
+    nav_msgs::OccupancyGrid dynamic_layer_msg;
+    std::vector<int> dynamic_data;
+    Eigen::Map<Eigen::MatrixXi>(dynamic_data.data(), map_height, map_width) = dynamic_layer;
+    // convert to int8
+    std::vector<int8_t> dynamic_data_int8(dynamic_data.begin(), dynamic_data.end());
+    dynamic_layer_msg.data = dynamic_data_int8;
+
+    // publish
+    static_pub.publish(static_layer_msg);
+    dynamic_pub.publish(dynamic_layer_msg);
+}
+
+// publish layers overload, specify layer and topic
+void Gridmap::pub_layers(Eigen::MatrixXi layer, ros::Publisher publisher) {
+    nav_msgs::OccupancyGrid layer_msg;
+    std::vector<int> layer_data;
+    Eigen::Map<Eigen::MatrixXi>(layer_data.data(), map_height, map_width) = layer;
+    std::vector<int8_t> layer_data_int8(layer_data.begin(), layer_data.end());
+    layer_msg.data = layer_data_int8;
+    publisher.publish(layer_msg);
+}
+
+std::vector<int> Gridmap::find_nonzero(Eigen::ArrayXi arr) {
     std::vector<int> ind;
     for (int i=0; i<arr.size(); i++) {
         if (arr[i] > 0) {

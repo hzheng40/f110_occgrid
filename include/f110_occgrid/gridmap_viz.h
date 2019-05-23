@@ -14,7 +14,9 @@ public:
     virtual ~GridmapViz();
 private:
     ros::NodeHandle nh_;
-    ros::Publisher grid_pub;
+    ros::Publisher env_viz_pub;
+    ros::Publisher static_viz_pub;
+    ros::Publisher dynamic_viz_pub;
 
     ros::Subscriber env_sub;
     ros::Subscriber static_sub;

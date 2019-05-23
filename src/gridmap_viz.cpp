@@ -7,7 +7,7 @@ GridmapViz::~GridmapViz() {
 
 GridmapViz::GridmapViz(ros::NodeHandle &nh) : nh_(nh) {
     env_viz_pub = nh_.advertise<visualization_msgs::Marker>("env_viz", 10);
-    statc_viz_pub = nh_.advertise<visualization_msgs::Marker>("static_viz", 10);
+    static_viz_pub = nh_.advertise<visualization_msgs::Marker>("static_viz", 10);
     dynamic_viz_pub = nh_.advertise<visualization_msgs::Marker>("dynamic_viz", 10);
 
     env_sub = nh_.subscribe("env_layer", 10, &GridmapViz::env_callback, this);
@@ -61,7 +61,7 @@ void GridmapViz::env_callback(const nav_msgs::OccupancyGrid::ConstPtr& env_layer
     env_viz_pub.publish(marker);
 }
 
-void GridmapViz::static_callback(const nav_msgs::OccupancyGrid::ConstPtr& staic_layer_msg){
+void GridmapViz::static_callback(const nav_msgs::OccupancyGrid::ConstPtr& static_layer_msg){
     std::vector<int8_t> static_layer_raw = static_layer_msg->data;
     std::vector<int> static_layer(static_layer_raw.begin(), static_layer_raw.end());
     visualization_msgs::Marker marker;
@@ -87,7 +87,7 @@ void GridmapViz::static_callback(const nav_msgs::OccupancyGrid::ConstPtr& staic_
     static_viz_pub.publish(marker);
 }
 
-void GridmapViz::dynamic_callback(const nav_msgs::OccupancyGrid::ConstPtr& staic_layer_msg){
+void GridmapViz::dynamic_callback(const nav_msgs::OccupancyGrid::ConstPtr& dynamic_layer_msg){
     std::vector<int8_t> dynamic_layer_raw = dynamic_layer_msg->data;
     std::vector<int> dynamic_layer(dynamic_layer_raw.begin(), dynamic_layer_raw.end());
     visualization_msgs::Marker marker;

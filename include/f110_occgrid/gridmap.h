@@ -56,6 +56,9 @@ private:
     void scan_callback(const sensor_msgs::LaserScan::ConstPtr& msg);
     void map_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg);
 
+    void pub_layers();
+    void pub_layers(Eigen::MatrixXi layer, ros::Publisher publisher);
+
     std::vector<int> find_nonzero(Eigen::ArrayXi arr);
 
     Eigen::MatrixXi get_env_layer();
