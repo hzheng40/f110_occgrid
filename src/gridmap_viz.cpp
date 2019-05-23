@@ -30,6 +30,8 @@ GridmapViz::GridmapViz(ros::NodeHandle &nh) : nh_(nh) {
     origin_y = origin.y;
     // don't think orientation is used here
     ROS_INFO("Map Metadata Loaded");
+
+    STATIC_THRESH = 3;
 }
 
 // callbacks
@@ -49,11 +51,9 @@ void GridmapViz::env_callback(const nav_msgs::OccupancyGrid::ConstPtr& env_layer
     col.g = 1.0;
     col.b = 1.0;
 
-    for (int i=0; i<(env_layer.rows()*env_layer.cols()); i++){
-        geometry_msgs::Point cube;
+    for (int i=0; i<env_layer.size(); i++){
         if (env_layer[i] != 0) {
-            cube.x = msg->data[i*3];
-            cube.y = msg->data[i*3+1];
+            geometry_msgs::Point cube = cell_2_coord(i);
             marker.points.push_back(cube);
             marker.colors.push_back(col);
         }
@@ -78,11 +78,11 @@ void GridmapViz::static_callback(const nav_msgs::OccupancyGrid::ConstPtr& static
     col.b = 0.0;
 
     for (int i=0; i<static_layer.size(); i++){
-        geometry_msgs::Point cube;
-        cube.x = msg->data[i*3];
-        cube.y = msg->data[i*3+1];
-        marker.points.push_back(cube);
-        marker.colors.push_back(col);
+        if (static_layer[i] >= STATIC_THRESH) {
+            geometry_msgs::Point cube = cell_2_coord(i);
+            marker.points.push_back(cube);
+            marker.colors.push_back(col);
+        }
     }
     static_viz_pub.publish(marker);
 }
@@ -104,19 +104,37 @@ void GridmapViz::dynamic_callback(const nav_msgs::OccupancyGrid::ConstPtr& dynam
     col.b = 1.0;
 
     for (int i=0; i<dynamic_layer.size(); i++){
-        geometry_msgs::Point cube;
-        cube.x = msg->data[i*3];
-        cube.y = msg->data[i*3+1];
-        marker.points.push_back(cube);
-        marker.colors.push_back(col);
+        if (dynamic_layer[i] != 0) {
+            geometry_msgs::Point cube = cell_2_coord(i);
+            marker.points.push_back(cube);
+            marker.colors.push_back(col);
+        }
     }
     dynamic_viz_pub.publish(marker);
 }
 
+std::vector<int> GridmapViz::ind_2_rc(int ind) {
+    //[row, col]
+    std::vector<int> rc(2);
+    rc.push_back(floor(ind/map_width));
+    rc.push_back(ind%map_width + floor(ind/map_width));
+    return rc;
+}
+
+geometry_msgs::Point GridmapViz::cell_2_coord(int ind) {
+    std::vector<int> rc = ind_2_rc(ind);
+    geometry_msgs::Point coord;
+    coord.x = origin_x + rc[1]*map_resolution;
+    coord.y = origin_y - rc[0]*map_resolution;
+    return coord;
+}
+
+
+
 int main(int argc, char** argv) {
     ros::init(argc, argv, "gridmap_viz");
     ros::NodeHandle nh;
-    RRTVIS rrt_vis(nh);
+    GridmapViz gridmap_vis(nh);
     ros::spin();
     return 0;
 }

@@ -27,7 +27,12 @@ private:
     float origin_x, origin_y;
     geometry_msgs::Pose map_origin;
 
+    int STATIC_THRESH;
+
     void env_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg);
     void static_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg);
     void dynamic_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg);
+
+    std::vector<int> ind_2_rc(int ind);
+    geometry_msgs::Point cell_2_coord(int ind);
 };

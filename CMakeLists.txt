@@ -144,8 +144,8 @@ include_directories(
 add_executable(gridmap_node src/gridmap_node.cpp src/gridmap.cpp)
 add_dependencies(gridmap_node ${catkin_EXPORTED_TARGETS})
 
-# add_executable(gridmap_viz_node src/gridmap_viz.cpp)
-# add_dependencies(gridmap_viz_node ${catkin_EXPORTED_TARGETS})
+add_executable(gridmap_viz_node src/gridmap_viz.cpp)
+add_dependencies(gridmap_viz_node ${catkin_EXPORTED_TARGETS})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -156,15 +156,15 @@ add_dependencies(gridmap_node ${catkin_EXPORTED_TARGETS})
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 add_dependencies(gridmap_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-# add_dependencies(gridmap_viz_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(gridmap_viz_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(gridmap_node
   ${catkin_LIBRARIES}
 )
-# target_link_libraries(gridmap_viz_node
-#   ${catkin_LIBRARIES}
-# )
+target_link_libraries(gridmap_viz_node
+  ${catkin_LIBRARIES}
+)
 
 #############
 ## Install ##
