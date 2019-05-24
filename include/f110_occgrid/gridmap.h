@@ -33,9 +33,12 @@ private:
     ros::Subscriber map_sub;
 
     // underlying data structures
-    Eigen::MatrixXi env_layer;
-    Eigen::MatrixXi static_layer;
-    Eigen::MatrixXi dynamic_layer;
+    // Eigen::MatrixXi env_layer;
+    Eigen::Matrix<int, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> env_layer;
+    Eigen::Matrix<int, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> static_layer;
+    Eigen::Matrix<int, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> dynamic_layer;
+    // Eigen::MatrixXi static_layer;
+    // Eigen::MatrixXi dynamic_layer;
 
     // map params
     bool INIT;
@@ -59,7 +62,7 @@ private:
     void pub_layers();
     void pub_layers(Eigen::MatrixXi layer, ros::Publisher publisher);
 
-    std::vector<int> find_nonzero(Eigen::ArrayXi arr);
+    std::vector<int> find_nonzero(Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> arr);
 
     Eigen::MatrixXi get_env_layer();
     Eigen::MatrixXi get_static_layer();

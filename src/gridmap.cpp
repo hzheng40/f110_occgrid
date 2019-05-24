@@ -28,23 +28,30 @@ Gridmap::Gridmap(ros::NodeHandle &nh) : nh_(nh) {
     geometry_msgs::Point origin = map_origin.position;
     origin_x = origin.x;
     origin_y = origin.y;
-    ROS_INFO("Map Metadata Loaded");
+    ROS_INFO("Map Metadata Loaded.");
 
     // params/attr init
+    INIT = false;
     INFLATION = 3;
     STATIC_THRESH = 3; // if seen n times then considered static obs
-    Eigen::Matrix<int, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> env_layer;
+    
+    env_layer.resize(map_height, map_width);
     env_layer.setZero();
-    Eigen::Matrix<int, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> static_layer;
+    
+    static_layer.resize(map_height, map_width);
     static_layer.setZero();
-    Eigen::Matrix<int, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> dynamic_layer;
+    
+    dynamic_layer.resize(map_height, map_width);
     dynamic_layer.setZero();
+
+    ROS_INFO("Gridmap node object init done.");
 }
 
 // callbacks
 void Gridmap::map_callback(const nav_msgs::OccupancyGrid::ConstPtr& map_msg) {
     // reroute to env_layer
     env_pub.publish(map_msg);
+    ROS_INFO("Map rerouted.");
     // if (INIT)? if slow only run this once with flag
     if (INIT) return;
     std::vector<int8_t> map_data = map_msg->data;
@@ -55,6 +62,7 @@ void Gridmap::map_callback(const nav_msgs::OccupancyGrid::ConstPtr& map_msg) {
     int* data_start = map_data_int.data();
     Eigen::Map<Eigen::MatrixXi>(data_start, env_layer.rows(), env_layer.cols()) = env_layer;
     INIT = true;
+    ROS_INFO("Map in Eigen.");
 }
 
 void Gridmap::scan_callback(const sensor_msgs::LaserScan::ConstPtr& scan_msg) {
@@ -92,19 +100,20 @@ void Gridmap::scan_callback(const sensor_msgs::LaserScan::ConstPtr& scan_msg) {
     }
 
     // find overlap between dynamic and env, 1 if true, 0 if false
-    Eigen::ArrayXi env_mask = (env_layer.array() > 0).cast<int>();
-    Eigen::ArrayXi dynamic_mask = (dynamic_layer.array() > 0).cast<int>();
-    Eigen::ArrayXi env_dynamic_overlap = ((env_mask + dynamic_mask) > 1).cast<int>();
+    Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> env_mask = (env_layer.array() > 0);
+    Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> dynamic_mask = (dynamic_layer.array() > 0);
+    Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> env_dynamic_overlap = env_mask && dynamic_mask;
     std::vector<int> env_dynamic_overlap_ind = find_nonzero(env_dynamic_overlap);
+
     // removing hits from dynamic layer if overlapped
     for (int i_o=0; i_o<env_dynamic_overlap_ind.size(); i_o++) {
         std::vector<int> current_ind = ind_2_rc(env_dynamic_overlap_ind[i_o]);
         dynamic_layer(current_ind[0], current_ind[1]) = 0;
     }
     // find overlap between new dynamic and static, 1 if true, 0 if false
-    Eigen::ArrayXi dynamic_mask_new = (dynamic_layer.array() > 0).cast<int>();
-    Eigen::ArrayXi static_mask = (static_layer.array() > 0).cast<int>();
-    Eigen::ArrayXi dynamic_static_overlap = ((dynamic_mask_new + static_mask) > 1).cast<int>();
+    Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> dynamic_mask_new = (dynamic_layer.array() > 0);
+    Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> static_mask = (static_layer.array() > 0);
+    Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> dynamic_static_overlap = dynamic_mask_new && static_mask;
     std::vector<int> dynamic_static_overlap_ind = find_nonzero(dynamic_static_overlap);
     // increment static layer values for overlap, remove hits over thresh from dynamic
     for (int i_d=0; i_d<dynamic_static_overlap_ind.size(); i_d++) {
@@ -117,6 +126,7 @@ void Gridmap::scan_callback(const sensor_msgs::LaserScan::ConstPtr& scan_msg) {
 
     // publish to the topics
     pub_layers();
+
 }
 
 // utils
@@ -125,16 +135,14 @@ void Gridmap::pub_layers() {
     // env layer not needed, already done in map callback
     // static layer
     nav_msgs::OccupancyGrid static_layer_msg;
-    std::vector<int> static_data;
-    Eigen::Map<Eigen::MatrixXi>(static_data.data(), map_height, map_width) = static_layer;
+    std::vector<int> static_data(static_layer.data(), static_layer.data()+static_layer.size());
     // convert to int8
     std::vector<int8_t> static_data_int8(static_data.begin(), static_data.end());
     static_layer_msg.data = static_data_int8;
 
     // dynamic layer
     nav_msgs::OccupancyGrid dynamic_layer_msg;
-    std::vector<int> dynamic_data;
-    Eigen::Map<Eigen::MatrixXi>(dynamic_data.data(), map_height, map_width) = dynamic_layer;
+    std::vector<int> dynamic_data(dynamic_layer.data(), dynamic_layer.data()+dynamic_layer.size());
     // convert to int8
     std::vector<int8_t> dynamic_data_int8(dynamic_data.begin(), dynamic_data.end());
     dynamic_layer_msg.data = dynamic_data_int8;
@@ -154,10 +162,10 @@ void Gridmap::pub_layers(Eigen::MatrixXi layer, ros::Publisher publisher) {
     publisher.publish(layer_msg);
 }
 
-std::vector<int> Gridmap::find_nonzero(Eigen::ArrayXi arr) {
+std::vector<int> Gridmap::find_nonzero(Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> arr) {
     std::vector<int> ind;
     for (int i=0; i<arr.size(); i++) {
-        if (arr[i] > 0) {
+        if (arr(i)) {
             ind.push_back(i);
         }
     }
