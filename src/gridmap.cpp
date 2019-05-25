@@ -21,6 +21,7 @@ Gridmap::Gridmap(ros::NodeHandle &nh) : nh_(nh) {
     if (env_metadata_ptr != NULL) {
         env_metadata_msg = *env_metadata_ptr;
     }
+    all_map_metadata = env_metadata_msg;
     map_resolution = env_metadata_msg.resolution;
     map_width = env_metadata_msg.width;
     map_height = env_metadata_msg.height;
@@ -50,7 +51,7 @@ Gridmap::Gridmap(ros::NodeHandle &nh) : nh_(nh) {
 // callbacks
 void Gridmap::map_callback(const nav_msgs::OccupancyGrid::ConstPtr& map_msg) {
     // reroute to env_layer
-    env_pub.publish(map_msg);
+    env_layer_msg = *map_msg;
     ROS_INFO("Map rerouted.");
     // if (INIT)? if slow only run this once with flag
     if (INIT) return;
@@ -126,7 +127,6 @@ void Gridmap::scan_callback(const sensor_msgs::LaserScan::ConstPtr& scan_msg) {
 
     // publish to the topics
     pub_layers();
-
 }
 
 // utils
@@ -135,6 +135,7 @@ void Gridmap::pub_layers() {
     // env layer not needed, already done in map callback
     // static layer
     nav_msgs::OccupancyGrid static_layer_msg;
+    static_layer_msg.info = all_map_metadata;
     std::vector<int> static_data(static_layer.data(), static_layer.data()+static_layer.size());
     // convert to int8
     std::vector<int8_t> static_data_int8(static_data.begin(), static_data.end());
@@ -142,6 +143,7 @@ void Gridmap::pub_layers() {
 
     // dynamic layer
     nav_msgs::OccupancyGrid dynamic_layer_msg;
+    dynamic_layer_msg.info = all_map_metadata;
     std::vector<int> dynamic_data(dynamic_layer.data(), dynamic_layer.data()+dynamic_layer.size());
     // convert to int8
     std::vector<int8_t> dynamic_data_int8(dynamic_data.begin(), dynamic_data.end());
@@ -150,11 +152,13 @@ void Gridmap::pub_layers() {
     // publish
     static_pub.publish(static_layer_msg);
     dynamic_pub.publish(dynamic_layer_msg);
+    if (INIT) env_pub.publish(env_layer_msg);
 }
 
 // publish layers overload, specify layer and topic
 void Gridmap::pub_layers(Eigen::MatrixXi layer, ros::Publisher publisher) {
     nav_msgs::OccupancyGrid layer_msg;
+    layer_msg.info = all_map_metadata;
     std::vector<int> layer_data;
     Eigen::Map<Eigen::MatrixXi>(layer_data.data(), map_height, map_width) = layer;
     std::vector<int8_t> layer_data_int8(layer_data.begin(), layer_data.end());
@@ -186,9 +190,11 @@ Eigen::MatrixXi Gridmap::get_dynamic_layer() {
 
 std::vector<int> Gridmap::ind_2_rc(int ind) {
     //[row, col]
-    std::vector<int> rc(2);
-    rc.push_back(floor(ind/map_width));
-    rc.push_back(ind%map_width + floor(ind/map_width));
+    std::vector<int> rc;
+    int row = floor(ind/map_width);
+    int col = ind%map_width-1;
+    rc.push_back(row);
+    rc.push_back(col);
     return rc;
 }
 

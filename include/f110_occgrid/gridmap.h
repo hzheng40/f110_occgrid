@@ -46,6 +46,8 @@ private:
     int map_width, map_height; // cells
     geometry_msgs::Pose map_origin; // cell(0,0), [m, m, rad]
     float origin_x, origin_y;
+    nav_msgs::MapMetaData all_map_metadata;
+    nav_msgs::OccupancyGrid env_layer_msg;
     int STATIC_THRESH; // threshold for value that's considered static obs
 
     // laser params

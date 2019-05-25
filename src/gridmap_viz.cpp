@@ -41,15 +41,15 @@ void GridmapViz::env_callback(const nav_msgs::OccupancyGrid::ConstPtr& env_layer
     visualization_msgs::Marker marker;
     marker.header.frame_id = "/map";
     marker.type = marker.CUBE_LIST;
-    marker.scale.x = 0.02;
-    marker.scale.y = 0.02;
-    marker.scale.z = 0.02;
+    marker.scale.x = 0.05;
+    marker.scale.y = 0.05;
+    marker.scale.z = 0.05;
 
     std_msgs::ColorRGBA col;
     col.a = 1.0;
-    col.r = 1.0;
-    col.g = 1.0;
-    col.b = 1.0;
+    col.r = 0.0;
+    col.g = 0.0;
+    col.b = 0.0;
 
     for (int i=0; i<env_layer.size(); i++){
         if (env_layer[i] != 0) {
@@ -67,9 +67,9 @@ void GridmapViz::static_callback(const nav_msgs::OccupancyGrid::ConstPtr& static
     visualization_msgs::Marker marker;
     marker.header.frame_id = "/map";
     marker.type = marker.CUBE_LIST;
-    marker.scale.x = 0.02;
-    marker.scale.y = 0.02;
-    marker.scale.z = 0.02;
+    marker.scale.x = 0.05;
+    marker.scale.y = 0.05;
+    marker.scale.z = 0.05;
 
     std_msgs::ColorRGBA col;
     col.a = 1.0;
@@ -93,9 +93,9 @@ void GridmapViz::dynamic_callback(const nav_msgs::OccupancyGrid::ConstPtr& dynam
     visualization_msgs::Marker marker;
     marker.header.frame_id = "/map";
     marker.type = marker.CUBE_LIST;
-    marker.scale.x = 0.02;
-    marker.scale.y = 0.02;
-    marker.scale.z = 0.02;
+    marker.scale.x = 0.05;
+    marker.scale.y = 0.05;
+    marker.scale.z = 0.05;
 
     std_msgs::ColorRGBA col;
     col.a = 1.0;
@@ -115,9 +115,11 @@ void GridmapViz::dynamic_callback(const nav_msgs::OccupancyGrid::ConstPtr& dynam
 
 std::vector<int> GridmapViz::ind_2_rc(int ind) {
     //[row, col]
-    std::vector<int> rc(2);
-    rc.push_back(floor(ind/map_width));
-    rc.push_back(ind%map_width + floor(ind/map_width));
+    std::vector<int> rc;
+    int row = floor(ind/map_width);
+    int col = ind%map_width-1;
+    rc.push_back(row);
+    rc.push_back(col);
     return rc;
 }
 
@@ -125,10 +127,9 @@ geometry_msgs::Point GridmapViz::cell_2_coord(int ind) {
     std::vector<int> rc = ind_2_rc(ind);
     geometry_msgs::Point coord;
     coord.x = origin_x + rc[1]*map_resolution;
-    coord.y = origin_y - rc[0]*map_resolution;
+    coord.y = origin_y + rc[0]*map_resolution;
     return coord;
 }
-
 
 
 int main(int argc, char** argv) {
