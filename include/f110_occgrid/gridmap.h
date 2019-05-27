@@ -1,11 +1,13 @@
 // ros stuff
 #include <ros/ros.h>
+#include <tf/transform_listener.h>
 #include <std_msgs/Float64MultiArray.h>
 #include <sensor_msgs/LaserScan.h>
 #include <nav_msgs/OccupancyGrid.h>
 #include <std_msgs/ColorRGBA.h>
 #include <geometry_msgs/Point.h>
 #include <geometry_msgs/Pose.h>
+#include <geometry_msgs/PointStamped.h>
 #include <visualization_msgs/Marker.h>
 
 // standard stuff
@@ -31,6 +33,9 @@ private:
 
     ros::Subscriber scan_sub;
     ros::Subscriber map_sub;
+
+    // tf stuff
+    tf::TransformListener listener;
 
     // underlying data structures
     // Eigen::MatrixXi env_layer;
@@ -71,10 +76,11 @@ private:
     Eigen::MatrixXi get_dynamic_layer();
 
     std::vector<int> ind_2_rc(int ind);
+    int rc_2_ind(int r, int c);
     bool out_of_bounds(int x, int y);
     geometry_msgs::Point cell_2_coord(int row, int col);
     geometry_msgs::Point cell_2_coord(int ind);
 
-    int coord_2_cell_rc(float x, float y);
-    std::vector<int> coord_2_cell_1d(float x, float y);
+    int coord_2_cell_ind(double x, double y);
+    std::vector<int> coord_2_cell_rc(double x, double y);
 };

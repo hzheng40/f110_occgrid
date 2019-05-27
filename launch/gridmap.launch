@@ -1,0 +1,27 @@
+<launch>
+    <!-- Listen to messages from joysicks -->
+    <!--<node pkg="joy" name="joy_node" type="joy_node"/>-->
+
+    <!-- Launch a map from the maps folder-->
+    <arg name="map" default="$(find racecar_simulator)/maps/levine.yaml"/>
+    <node pkg="map_server" name="map_server" type="map_server" args="$(arg map)"/>
+
+    <!-- Launch the racecar model -->
+    <include file="$(find racecar_simulator)/launch/racecar_model.launch"/>
+
+    <!-- Begin the simulator with the parameters from params.yaml -->
+    <node pkg="racecar_simulator" name="racecar_simulator" type="simulate" output="screen">
+        <rosparam command="load" file="$(find racecar_simulator)/params.yaml"/>
+    </node>
+
+    <!-- Launch Rviz -->
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find f110_occgrid)/launch/occgrid.rviz" output="screen"/>
+
+    <!-- Begin occgrid node -->
+    <node pkg="f110_occgrid" name="gridmap_node" type="gridmap_node" output="screen"/>
+
+    <!-- Begin occgrid visualization node-->
+    <node pkg="f110_occgrid" name="gridmap_viz_node" type="gridmap_viz_node" output="screen"/>
+
+
+</launch>

@@ -80,22 +80,36 @@ void Gridmap::scan_callback(const sensor_msgs::LaserScan::ConstPtr& scan_msg) {
     // steps in laser callback:
     // 1. put everything in dynamic layer
     // 2. find overlap between dynamic and env, remove overlaps in dynamic
-    // 3. find overlap between dynamic and static, increment value in static, and if the value over threshold, remove overlaps in dynamic.
+    // 3. find overlap between dynamic and static, increment value in static,
+    // and if the value over threshold, remove overlaps in dynamic.
     std::vector<float> ranges = scan_msg->ranges;
     // put scan into dynamic layer
     for (int i=0; i<SCAN_COUNT; i++) {
         double range = ranges[i];
         if (std::isnan(range) || std::isinf(range)) continue;
+        // these are in the frame of /laser
         double x = range*cos(angles_vector[i]), y = range*sin(angles_vector[i]);
-        int grid_x = x/map_resolution, grid_y = y/map_resolution;
+        // transform into map frame
+        geometry_msgs::PointStamped before_tf;
+        before_tf.point.x = x;
+        before_tf.point.y = y;
+        before_tf.header.frame_id = "/laser";
+        geometry_msgs::PointStamped after_tf;
+        after_tf.header.frame_id = "/map";
+        listener.transformPoint("/map", before_tf, after_tf);
+//        int grid_x = static_cast<int>(after_tf.point.x/map_resolution);
+//        int grid_y = static_cast<int>(after_tf.point.y/map_resolution);
+        std::vector<int> laser_rc = coord_2_cell_rc(after_tf.point.x, after_tf.point.x);
+        int laser_r = laser_rc[0];
+        int laser_c = laser_rc[1];
         // check bounds
-        if (out_of_bounds(grid_x, grid_y)) continue;
+        if (out_of_bounds(laser_r, laser_c)) continue;
         // add inflation
         for (int i_f=-INFLATION; i_f<=INFLATION; i_f++) {
             for (int j_f=-INFLATION; j_f<=INFLATION; j_f++) {
-                int current_x = grid_x - i_f, current_y = grid_y - j_f;
-                if (out_of_bounds(current_x, current_y)) continue;
-                dynamic_layer(current_y, current_x) = 100;
+                int current_r = laser_r - i_f, current_c = laser_c - j_f;
+                if (out_of_bounds(current_r, current_c)) continue;
+                dynamic_layer(current_r, current_c) = 100;
             }
         }
     }
@@ -198,15 +212,19 @@ std::vector<int> Gridmap::ind_2_rc(int ind) {
     return rc;
 }
 
-bool Gridmap::out_of_bounds(int x, int y) {
-    return (x < 0 || y < 0 || x >= map_height || y >= map_width);
+int Gridmap::rc_2_ind(int r, int c) {
+    return r*map_width+c;
+}
+
+bool Gridmap::out_of_bounds(int r, int c) {
+    return (r < 0 || c < 0 || r >= map_height || c >= map_width);
 }
 
 // via r c
 geometry_msgs::Point Gridmap::cell_2_coord(int row, int col) {
     geometry_msgs::Point coord;
     coord.x = origin_x + col*map_resolution;
-    coord.y = origin_y - row*map_resolution;
+    coord.y = origin_y + row*map_resolution;
     return coord;
 }
 // via 1D index
@@ -214,16 +232,21 @@ geometry_msgs::Point Gridmap::cell_2_coord(int ind) {
     std::vector<int> rc = ind_2_rc(ind);
     geometry_msgs::Point coord;
     coord.x = origin_x + rc[1]*map_resolution;
-    coord.y = origin_y - rc[0]*map_resolution;
+    coord.y = origin_y + rc[0]*map_resolution;
     return coord;
 }
 // returns 1D index
-int Gridmap::coord_2_cell_rc(float x, float y){
-    return 0;
+int Gridmap::coord_2_cell_ind(double x, double y){
+    int col = static_cast<int>((x - origin_x) / map_resolution);
+    int row = static_cast<int>((y - origin_y) / map_resolution);
+    return rc_2_ind(row, col);
 }
-// returns row col index
-std::vector<int> Gridmap::coord_2_cell_1d(float x, float y) {
-    int ind = coord_2_cell_rc(x, y);
-    std::vector<int> rc = ind_2_rc(ind);
+// returns rc index
+std::vector<int> Gridmap::coord_2_cell_rc(double x, double y) {
+    std::vector<int> rc;
+    int col = static_cast<int>((x - origin_x) / map_resolution);
+    int row = static_cast<int>((y - origin_y) / map_resolution);
+    rc.push_back(row);
+    rc.push_back(col);
     return rc;
 }
