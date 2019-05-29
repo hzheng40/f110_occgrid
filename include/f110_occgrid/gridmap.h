@@ -16,9 +16,13 @@
 #include <array>
 #include <iostream>
 
-//Eigen
+// Eigen
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
+
+// OpenCV
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
 
 class Gridmap {
 public:

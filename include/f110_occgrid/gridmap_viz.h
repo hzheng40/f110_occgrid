@@ -1,4 +1,5 @@
 #include <ros/ros.h>
+#include <tf/transform_listener.h>
 #include <std_msgs/Float64MultiArray.h>
 #include <nav_msgs/OccupancyGrid.h>
 #include <std_msgs/ColorRGBA.h>
@@ -26,6 +27,9 @@ private:
     int map_width, map_height;
     float origin_x, origin_y;
     geometry_msgs::Pose map_origin;
+
+    // tf stuff
+    tf::TransformListener listener;
 
     int STATIC_THRESH;
 

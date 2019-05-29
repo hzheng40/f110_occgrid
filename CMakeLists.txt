@@ -19,6 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf
 )
 find_package(Eigen3 REQUIRED)
+find_package(OpenCV)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -126,6 +127,7 @@ include_directories(
   include
   ${catkin_INCLUDE_DIRS}
   ${Eigen_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -164,6 +166,9 @@ target_link_libraries(gridmap_node
 )
 target_link_libraries(gridmap_viz_node
   ${catkin_LIBRARIES}
+)
+target_link_libraries(gridmap_node
+   ${OpenCV_LIBRARIES}
 )
 
 #############

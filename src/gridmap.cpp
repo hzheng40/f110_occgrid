@@ -33,8 +33,8 @@ Gridmap::Gridmap(ros::NodeHandle &nh) : nh_(nh) {
 
     // params/attr init
     INIT = false;
-    INFLATION = 3;
-    STATIC_THRESH = 3; // if seen n times then considered static obs
+    INFLATION = 1;
+    STATIC_THRESH = 5; // if seen n times then considered static obs
     
     env_layer.resize(map_height, map_width);
     env_layer.setZero();
@@ -44,6 +44,11 @@ Gridmap::Gridmap(ros::NodeHandle &nh) : nh_(nh) {
     
     dynamic_layer.resize(map_height, map_width);
     dynamic_layer.setZero();
+
+    // making sure tf between map and laser is published before running
+    ros::Time now = ros::Time::now();
+    listener.waitForTransform("/map", "/laser", now, ros::Duration(3.0));
+    ROS_INFO("Transform arrived.");
 
     ROS_INFO("Gridmap node object init done.");
 }
@@ -82,6 +87,8 @@ void Gridmap::scan_callback(const sensor_msgs::LaserScan::ConstPtr& scan_msg) {
     // 2. find overlap between dynamic and env, remove overlaps in dynamic
     // 3. find overlap between dynamic and static, increment value in static,
     // and if the value over threshold, remove overlaps in dynamic.
+    // NEW 3. previous doesn't work because there's no static to start with
+    // new approach: before checking overlap, increment value that's in dynamic
     std::vector<float> ranges = scan_msg->ranges;
     // put scan into dynamic layer
     for (int i=0; i<SCAN_COUNT; i++) {
@@ -97,9 +104,7 @@ void Gridmap::scan_callback(const sensor_msgs::LaserScan::ConstPtr& scan_msg) {
         geometry_msgs::PointStamped after_tf;
         after_tf.header.frame_id = "/map";
         listener.transformPoint("/map", before_tf, after_tf);
-//        int grid_x = static_cast<int>(after_tf.point.x/map_resolution);
-//        int grid_y = static_cast<int>(after_tf.point.y/map_resolution);
-        std::vector<int> laser_rc = coord_2_cell_rc(after_tf.point.x, after_tf.point.x);
+        std::vector<int> laser_rc = coord_2_cell_rc(after_tf.point.x, after_tf.point.y);
         int laser_r = laser_rc[0];
         int laser_c = laser_rc[1];
         // check bounds
@@ -127,13 +132,21 @@ void Gridmap::scan_callback(const sensor_msgs::LaserScan::ConstPtr& scan_msg) {
     }
     // find overlap between new dynamic and static, 1 if true, 0 if false
     Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> dynamic_mask_new = (dynamic_layer.array() > 0);
-    Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> static_mask = (static_layer.array() > 0);
+    std::vector<int> dynamic_ind = find_nonzero(dynamic_mask_new);
+    // increment static layer values for those in dynamic
+    for (int i_dy=0; i_dy<dynamic_ind.size(); i_dy++) {
+        std::vector<int> current_ind = ind_2_rc(dynamic_ind[i_dy]);
+        if (static_layer(current_ind[1], current_ind[0]) < 100) {
+            static_layer(current_ind[1], current_ind[0])++;
+        }
+    }
+    Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> static_mask = (static_layer.array() >= STATIC_THRESH);
     Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> dynamic_static_overlap = dynamic_mask_new && static_mask;
     std::vector<int> dynamic_static_overlap_ind = find_nonzero(dynamic_static_overlap);
     // increment static layer values for overlap, remove hits over thresh from dynamic
     for (int i_d=0; i_d<dynamic_static_overlap_ind.size(); i_d++) {
         std::vector<int> current_ind = ind_2_rc(dynamic_static_overlap_ind[i_d]);
-        static_layer(current_ind[0], current_ind[1])++;
+//        static_layer(current_ind[0], current_ind[1])++;
         if (static_layer(current_ind[0], current_ind[1]) >= STATIC_THRESH) {
             dynamic_layer(current_ind[0], current_ind[1]) = 0;
         }
@@ -141,6 +154,8 @@ void Gridmap::scan_callback(const sensor_msgs::LaserScan::ConstPtr& scan_msg) {
 
     // publish to the topics
     pub_layers();
+    // clear dynamic layer
+    dynamic_layer.setZero();
 }
 
 // utils

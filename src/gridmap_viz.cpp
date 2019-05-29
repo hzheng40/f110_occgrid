@@ -31,7 +31,12 @@ GridmapViz::GridmapViz(ros::NodeHandle &nh) : nh_(nh) {
     // don't think orientation is used here
     ROS_INFO("Map Metadata Loaded");
 
-    STATIC_THRESH = 3;
+    STATIC_THRESH = 5;
+
+    // making sure tf between map and laser is published before running
+    ros::Time now = ros::Time::now();
+    listener.waitForTransform("/map", "/laser", now, ros::Duration(3.0));
+    ROS_INFO("Transform arrived.");
 }
 
 // callbacks
