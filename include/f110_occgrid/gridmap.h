@@ -10,6 +10,9 @@
 #include <geometry_msgs/PointStamped.h>
 #include <visualization_msgs/Marker.h>
 
+// service
+#include "f110_occgrid/ConvertMap.h"
+
 // standard stuff
 #include <math.h>
 #include <vector>
@@ -21,13 +24,26 @@
 #include <Eigen/Geometry>
 
 // OpenCV
+#include <opencv2/core/eigen.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <image_transport/image_transport.h>
+#include <opencv2/highgui/highgui.hpp>
+#include <cv_bridge/cv_bridge.h>
+
+static const std::string OPENCV_WINDOW = "Converted Map";
 
 class Gridmap {
 public:
     Gridmap(ros::NodeHandle &nh);
     virtual ~Gridmap();
+    Eigen::MatrixXi get_env_layer();
+    Eigen::MatrixXi get_static_layer();
+    Eigen::MatrixXi get_dynamic_layer();
+    bool get_converted_image(f110_occgrid::ConvertMap::Request &req, f110_occgrid::ConvertMap::Response &res);
+    sensor_msgs::Image get_img();
+    cv::Mat get_cv_img(sensor_msgs::ImagePtr image);
+    cv::Mat get_cv_img();
 private:
     // ros stuff
     ros::NodeHandle nh_;
@@ -42,12 +58,9 @@ private:
     tf::TransformListener listener;
 
     // underlying data structures
-    // Eigen::MatrixXi env_layer;
     Eigen::Matrix<int, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> env_layer;
     Eigen::Matrix<int, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> static_layer;
     Eigen::Matrix<int, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> dynamic_layer;
-    // Eigen::MatrixXi static_layer;
-    // Eigen::MatrixXi dynamic_layer;
 
     // map params
     bool INIT;
@@ -67,24 +80,28 @@ private:
     // occgrid params
     int INFLATION;
 
+    // current frame image
+    sensor_msgs::ImagePtr current_img;
+
+    // private methods
     void scan_callback(const sensor_msgs::LaserScan::ConstPtr& msg);
     void map_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg);
-
     void pub_layers();
     void pub_layers(Eigen::MatrixXi layer, ros::Publisher publisher);
-
+    sensor_msgs::ImagePtr layers_2_img();
+    cv::Mat layers_2_cv_img();
+    sensor_msgs::ImagePtr transform_img(sensor_msgs::ImagePtr full_img);
+    void update_img(cv::Mat img);
+    void update_img(sensor_msgs::ImagePtr img);
+    sensor_msgs::ImagePtr cv_2_ros_img(cv::Mat img);
+    void cv_2_ros_img(cv::Mat img, ros::Publisher img_pub);
+    cv::Mat ros_2_cv_img(sensor_msgs::ImagePtr img);
     std::vector<int> find_nonzero(Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> arr);
-
-    Eigen::MatrixXi get_env_layer();
-    Eigen::MatrixXi get_static_layer();
-    Eigen::MatrixXi get_dynamic_layer();
-
     std::vector<int> ind_2_rc(int ind);
     int rc_2_ind(int r, int c);
     bool out_of_bounds(int x, int y);
     geometry_msgs::Point cell_2_coord(int row, int col);
     geometry_msgs::Point cell_2_coord(int ind);
-
     int coord_2_cell_ind(double x, double y);
     std::vector<int> coord_2_cell_rc(double x, double y);
 };

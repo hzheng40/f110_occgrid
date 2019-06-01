@@ -14,9 +14,12 @@ find_package(catkin REQUIRED COMPONENTS
   race
   roscpp
   rospy
+  message_generation
+  image_transport
   sensor_msgs
   std_msgs
   tf
+  cv_bridge
 )
 find_package(Eigen3 REQUIRED)
 find_package(OpenCV)
@@ -62,11 +65,10 @@ find_package(OpenCV)
 # )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+ add_service_files(
+   FILES
+   ConvertMap.srv
+ )
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -76,10 +78,13 @@ find_package(OpenCV)
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   geometry_msgs#   nav_msgs#   sensor_msgs#   std_msgs
-# )
+ generate_messages(
+   DEPENDENCIES
+   geometry_msgs
+   nav_msgs
+   sensor_msgs
+   std_msgs
+ )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -113,7 +118,7 @@ find_package(OpenCV)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES f110_occgrid
-  CATKIN_DEPENDS geometry_msgs nav_msgs race roscpp rospy sensor_msgs std_msgs tf
+  CATKIN_DEPENDS geometry_msgs nav_msgs race roscpp rospy sensor_msgs std_msgs tf message_runtime
   DEPENDS system_lib
 )
 
@@ -149,6 +154,9 @@ add_dependencies(gridmap_node ${catkin_EXPORTED_TARGETS})
 add_executable(gridmap_viz_node src/gridmap_viz.cpp)
 add_dependencies(gridmap_viz_node ${catkin_EXPORTED_TARGETS})
 
+add_executable(gridmap_conversion_node src/gridmap_conversion.cpp)
+add_dependencies(gridmap_conversion_node ${catkin_EXPORTED_TARGETS})
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -159,6 +167,7 @@ add_dependencies(gridmap_viz_node ${catkin_EXPORTED_TARGETS})
 ## same as for the library above
 add_dependencies(gridmap_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(gridmap_viz_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(gridmap_conversion_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(gridmap_node
@@ -168,6 +177,12 @@ target_link_libraries(gridmap_viz_node
   ${catkin_LIBRARIES}
 )
 target_link_libraries(gridmap_node
+   ${OpenCV_LIBRARIES}
+)
+target_link_libraries(gridmap_conversion_node
+   ${catkin_LIBRARIES}
+)
+target_link_libraries(gridmap_conversion_node
    ${OpenCV_LIBRARIES}
 )
 

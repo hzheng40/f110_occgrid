@@ -158,7 +158,6 @@ void Gridmap::scan_callback(const sensor_msgs::LaserScan::ConstPtr& scan_msg) {
     dynamic_layer.setZero();
 }
 
-// utils
 // publish layers, default: no argument, publishes all current layer via attr
 void Gridmap::pub_layers() {
     // env layer not needed, already done in map callback
@@ -195,6 +194,81 @@ void Gridmap::pub_layers(Eigen::MatrixXi layer, ros::Publisher publisher) {
     publisher.publish(layer_msg);
 }
 
+// service function for conversion
+bool Gridmap::get_converted_image(f110_occgrid::ConvertMap::Request &req, f110_occgrid::ConvertMap::Response &res) {
+    sensor_msgs::ImagePtr img = layers_2_img();
+    sensor_msgs::ImagePtr transformed_img = transform_img(img);
+    res.image = *transformed_img;
+    update_img(transformed_img);
+    return true;
+}
+// utils for conversion
+// convert from layers mat to cv img
+sensor_msgs::ImagePtr Gridmap::layers_2_img() {
+    cv::Mat img = layers_2_cv_img();
+    sensor_msgs::ImagePtr ros_img = cv_2_ros_img(img);
+    return ros_img;
+}
+cv::Mat Gridmap::layers_2_cv_img() {
+    cv::Mat img = cv::Mat::zeros(map_height, map_width, CV_8UC3);
+    cv::Mat blue = cv::Mat(map_height, map_width, CV_8UC1, dynamic_layer.data());
+    cv::Mat green = cv::Mat(map_height, map_width, CV_8UC1, static_layer.data());
+    cv::Mat red = cv::Mat(map_height, map_width, CV_8UC1, env_layer.data());
+    cv::Mat channels[] = {blue, green, red};
+    cv::merge(channels, 3, img);
+    return img;
+}
+// transform and crop image around car using tf
+sensor_msgs::ImagePtr Gridmap::transform_img(sensor_msgs::ImagePtr full_img) {
+    sensor_msgs::ImagePtr img;
+    return img;
+}
+// updates current frame image
+void Gridmap::update_img(cv::Mat img) {
+    current_img = cv_2_ros_img(img);
+}
+void Gridmap::update_img(sensor_msgs::ImagePtr img) {
+    current_img = img;
+}
+// conversions between ros and cv imgs
+sensor_msgs::ImagePtr Gridmap::cv_2_ros_img(cv::Mat img) {
+    sensor_msgs::ImagePtr img_msg;
+    if (!img.empty()) {
+        img_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", img).toImageMsg();
+    }
+    return img_msg;
+}
+void Gridmap::cv_2_ros_img(cv::Mat img, ros::Publisher img_pub) {
+    sensor_msgs::ImagePtr img_msg;
+    if (!img.empty()) {
+        img_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", img).toImageMsg();
+    }
+    img_pub.publish(img_msg);
+    return;
+}
+cv::Mat Gridmap::ros_2_cv_img(sensor_msgs::ImagePtr img) {
+    cv_bridge::CvImagePtr cv_ptr;
+    try {
+        cv_ptr = cv_bridge::toCvCopy(img, sensor_msgs::image_encodings::BGR8);
+    } catch (cv_bridge::Exception& e) {
+        ROS_ERROR("cv_bridge exception: %s", e.what());
+    }
+    return cv_ptr->image;
+}
+// returns current frame ros image
+sensor_msgs::Image Gridmap::get_img() {
+    return *current_img;
+}
+// converts given image to cv image
+cv::Mat Gridmap::get_cv_img(sensor_msgs::ImagePtr image) {
+    return ros_2_cv_img(image);
+}
+// overload, get current frame cv image
+cv::Mat Gridmap::get_cv_img() {
+    return ros_2_cv_img(current_img);
+}
+
+// utils
 std::vector<int> Gridmap::find_nonzero(Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> arr) {
     std::vector<int> ind;
     for (int i=0; i<arr.size(); i++) {
