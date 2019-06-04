@@ -4,6 +4,7 @@
 #include <std_msgs/Float64MultiArray.h>
 #include <sensor_msgs/LaserScan.h>
 #include <nav_msgs/OccupancyGrid.h>
+#include <nav_msgs/Odometry.h>
 #include <std_msgs/ColorRGBA.h>
 #include <geometry_msgs/Point.h>
 #include <geometry_msgs/Pose.h>
@@ -82,15 +83,17 @@ private:
 
     // current frame image
     sensor_msgs::ImagePtr current_img;
+    int img_size;
 
     // private methods
     void scan_callback(const sensor_msgs::LaserScan::ConstPtr& msg);
     void map_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg);
     void pub_layers();
     void pub_layers(Eigen::MatrixXi layer, ros::Publisher publisher);
+    cv::Rect get_roi(std::vector<int> car_center);
     sensor_msgs::ImagePtr layers_2_img();
     cv::Mat layers_2_cv_img();
-    sensor_msgs::ImagePtr transform_img(sensor_msgs::ImagePtr full_img);
+    cv::Mat transform_img(cv::Mat full_img);
     void update_img(cv::Mat img);
     void update_img(sensor_msgs::ImagePtr img);
     sensor_msgs::ImagePtr cv_2_ros_img(cv::Mat img);

@@ -1,0 +1,22 @@
+{
+	"folders":
+	[
+		{
+			"path": "."
+		}
+	],
+	"settings":
+	{
+		"ecc_flags_sources":
+		[
+			{
+				"file": "CMakeLists.txt",
+				"prefix_paths":
+				[
+					"/opt/ros/kinetic",
+					"~/catkin_ws/devel"
+				]
+			}
+		]
+	}
+}

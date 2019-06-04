@@ -35,6 +35,7 @@ Gridmap::Gridmap(ros::NodeHandle &nh) : nh_(nh) {
     INIT = false;
     INFLATION = 1;
     STATIC_THRESH = 5; // if seen n times then considered static obs
+    img_size = 200;
     
     env_layer.resize(map_height, map_width);
     env_layer.setZero();
@@ -196,9 +197,10 @@ void Gridmap::pub_layers(Eigen::MatrixXi layer, ros::Publisher publisher) {
 
 // service function for conversion
 bool Gridmap::get_converted_image(f110_occgrid::ConvertMap::Request &req, f110_occgrid::ConvertMap::Response &res) {
-    sensor_msgs::ImagePtr img = layers_2_img();
-    sensor_msgs::ImagePtr transformed_img = transform_img(img);
-    res.image = *transformed_img;
+    cv::Mat img = layers_2_cv_img();
+    cv::Mat transformed_img = transform_img(img);
+    sensor_msgs::ImagePtr ros_img = cv_2_ros_img(transformed_img);
+    res.image = *ros_img;
     update_img(transformed_img);
     return true;
 }
@@ -219,9 +221,52 @@ cv::Mat Gridmap::layers_2_cv_img() {
     return img;
 }
 // transform and crop image around car using tf
-sensor_msgs::ImagePtr Gridmap::transform_img(sensor_msgs::ImagePtr full_img) {
-    sensor_msgs::ImagePtr img;
+cv::Mat Gridmap::transform_img(cv::Mat full_img) {
+    cv::Mat img;
+    tf::StampedTransform transform;
+    try {
+        listener.lookupTransform("/laser", "/map", ros::Time(0), transform);
+    } catch (tf::TransformException ex) {
+        ROS_ERROR("%s", ex.what());
+    }
+    tf::Vector3 origin = transform.getOrigin();
+    tf::Quaternion rotation = transform.getRotation();
+    double origin_x = origin.x();
+    double origin_y = origin.y();
+    // by default the axis angle representation should be the z-axis and the rotation angle
+    double angle = rotation.getAngle();
+    // get car location in map
+    boost::shared_ptr<nav_msgs::Odometry const> odom_ptr;
+    nav_msgs::Odometry odom_msg;
+    odom_ptr = ros::topic::waitForMessage<nav_msgs::Odometry>("/odom");
+    if (odom_ptr != NULL) {
+        odom_msg = *odom_ptr;
+    }
+    double car_x = odom_msg.pose.pose.position.x;
+    double car_y = odom_msg.pose.pose.position.y;
+    std::vector<int> car_grid = coord_2_cell_rc(car_x, car_y);
+    cv::Point car_center = cv::Point(car_grid[1], car_grid[0]);
+    // rotate image by angle, and crop such that car position is at fixed location
+    cv::Mat rot_mat = cv::getRotationMatrix2D(car_center, angle, 1.0);
+    cv::warpAffine(full_img, img, rot_mat, full_img.size(), cv::INTER_LINEAR);
+    // crop around car position
+    // cv::Rect car_roi = get_roi(car_grid);
+    cv::Rect car_roi(car_grid[1] - img_size/2, car_grid[0]-(3*img_size)/4, img_size, img_size);
+    // overlay image of car on top
+    img = img(car_roi);
     return img;
+}
+// get roi from car center
+cv::Rect Gridmap::get_roi(std::vector<int> car_center) {
+    cv::Rect car_roi(0,0,0,0);
+    int car_x = car_center[1];
+    int car_y = car_center[0];
+    int x_min = car_x - img_size/2;
+    int x_max = car_x + img_size/2;
+    int y_min = car_y - (3*img_size)/4;
+    int y_max = car_y + img_size/4;
+    // if (x_min < 0 || y_min < 0 || )
+    return car_roi;
 }
 // updates current frame image
 void Gridmap::update_img(cv::Mat img) {
