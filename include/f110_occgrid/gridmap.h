@@ -32,8 +32,6 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <cv_bridge/cv_bridge.h>
 
-static const std::string OPENCV_WINDOW = "Converted Map";
-
 class Gridmap {
 public:
     Gridmap(ros::NodeHandle &nh);
@@ -43,8 +41,11 @@ public:
     Eigen::MatrixXi get_dynamic_layer();
     bool get_converted_image(f110_occgrid::ConvertMap::Request &req, f110_occgrid::ConvertMap::Response &res);
     sensor_msgs::Image get_img();
-    cv::Mat get_cv_img(sensor_msgs::ImagePtr image);
+    cv::Mat get_cv_img(sensor_msgs::ImagePtr &image);
     cv::Mat get_cv_img();
+    sensor_msgs::ImagePtr cv_2_ros_img(cv::Mat &img);
+    void cv_2_ros_img(cv::Mat &img, ros::Publisher &img_pub);
+    cv::Mat ros_2_cv_img(sensor_msgs::ImagePtr &img);
 private:
     // ros stuff
     ros::NodeHandle nh_;
@@ -82,6 +83,8 @@ private:
     int INFLATION;
 
     // current frame image
+    image_transport::ImageTransport it;
+    image_transport::Publisher image_pub;
     sensor_msgs::ImagePtr current_img;
     int img_size;
 
@@ -89,17 +92,15 @@ private:
     void scan_callback(const sensor_msgs::LaserScan::ConstPtr& msg);
     void map_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg);
     void pub_layers();
-    void pub_layers(Eigen::MatrixXi layer, ros::Publisher publisher);
-    cv::Rect get_roi(std::vector<int> car_center);
+    void pub_layers(bool pub_image);
+    void pub_layers(Eigen::MatrixXi &layer, ros::Publisher &publisher);
+    cv::Rect get_roi(std::vector<int> &car_center);
     sensor_msgs::ImagePtr layers_2_img();
     cv::Mat layers_2_cv_img();
-    cv::Mat transform_img(cv::Mat full_img);
-    void update_img(cv::Mat img);
-    void update_img(sensor_msgs::ImagePtr img);
-    sensor_msgs::ImagePtr cv_2_ros_img(cv::Mat img);
-    void cv_2_ros_img(cv::Mat img, ros::Publisher img_pub);
-    cv::Mat ros_2_cv_img(sensor_msgs::ImagePtr img);
-    std::vector<int> find_nonzero(Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> arr);
+    cv::Mat transform_img(cv::Mat &full_img);
+    void update_img(cv::Mat &img);
+    void update_img(sensor_msgs::ImagePtr &img);
+    std::vector<int> find_nonzero(Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> &arr);
     std::vector<int> ind_2_rc(int ind);
     int rc_2_ind(int r, int c);
     bool out_of_bounds(int x, int y);

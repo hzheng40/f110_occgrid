@@ -154,8 +154,11 @@ add_dependencies(gridmap_node ${catkin_EXPORTED_TARGETS})
 add_executable(gridmap_viz_node src/gridmap_viz.cpp)
 add_dependencies(gridmap_viz_node ${catkin_EXPORTED_TARGETS})
 
-add_executable(gridmap_conversion_node src/gridmap_conversion.cpp)
-add_dependencies(gridmap_conversion_node ${catkin_EXPORTED_TARGETS})
+# add_executable(gridmap_conversion_node src/gridmap_conversion.cpp)
+# add_dependencies(gridmap_conversion_node ${catkin_EXPORTED_TARGETS})
+
+add_executable(map_conversion_client src/img_client_test.cpp)
+add_dependencies(map_conversion_client ${catkin_EXPORTED_TARGETS})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -167,7 +170,8 @@ add_dependencies(gridmap_conversion_node ${catkin_EXPORTED_TARGETS})
 ## same as for the library above
 add_dependencies(gridmap_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(gridmap_viz_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(gridmap_conversion_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(gridmap_conversion_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(map_conversion_client ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(gridmap_node
@@ -176,15 +180,18 @@ target_link_libraries(gridmap_node
 target_link_libraries(gridmap_viz_node
   ${catkin_LIBRARIES}
 )
+target_link_libraries(map_conversion_client
+  ${catkin_LIBRARIES}
+)
 target_link_libraries(gridmap_node
    ${OpenCV_LIBRARIES}
 )
-target_link_libraries(gridmap_conversion_node
-   ${catkin_LIBRARIES}
-)
-target_link_libraries(gridmap_conversion_node
-   ${OpenCV_LIBRARIES}
-)
+# target_link_libraries(gridmap_conversion_node
+   # ${catkin_LIBRARIES}
+# )
+# target_link_libraries(gridmap_conversion_node
+   # ${OpenCV_LIBRARIES}
+# )
 
 #############
 ## Install ##

@@ -3,7 +3,7 @@
 Gridmap::~Gridmap() {
     ROS_INFO("Gridmap node shutting down");
 }
-Gridmap::Gridmap(ros::NodeHandle &nh) : nh_(nh) {
+Gridmap::Gridmap(ros::NodeHandle &nh) : nh_(nh), it(nh) {
     // publishers
     env_pub = nh_.advertise<nav_msgs::OccupancyGrid>("env_layer", 10);
     static_pub = nh_.advertise<nav_msgs::OccupancyGrid>("static_layer", 10);
@@ -34,8 +34,10 @@ Gridmap::Gridmap(ros::NodeHandle &nh) : nh_(nh) {
     // params/attr init
     INIT = false;
     INFLATION = 1;
-    STATIC_THRESH = 5; // if seen n times then considered static obs
+    STATIC_THRESH = 50; // if seen n times then considered static obs
     img_size = 200;
+
+    image_pub = it.advertise("/converted_map", 1);
     
     env_layer.resize(map_height, map_width);
     env_layer.setZero();
@@ -119,39 +121,65 @@ void Gridmap::scan_callback(const sensor_msgs::LaserScan::ConstPtr& scan_msg) {
             }
         }
     }
-
+    
     // find overlap between dynamic and env, 1 if true, 0 if false
-    Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> env_mask = (env_layer.array() > 0);
-    Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> dynamic_mask = (dynamic_layer.array() > 0);
-    Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> env_dynamic_overlap = env_mask && dynamic_mask;
-    std::vector<int> env_dynamic_overlap_ind = find_nonzero(env_dynamic_overlap);
 
-    // removing hits from dynamic layer if overlapped
-    for (int i_o=0; i_o<env_dynamic_overlap_ind.size(); i_o++) {
-        std::vector<int> current_ind = ind_2_rc(env_dynamic_overlap_ind[i_o]);
-        dynamic_layer(current_ind[0], current_ind[1]) = 0;
+    // layers should have the same sizes
+    // looping over data pointer, way faster
+    // ros::Time b4overlap = ros::Time::now();
+    for (size_t i_layer=0, layer_size = env_layer.size(); i_layer<layer_size; i_layer++) {
+        int *env = env_layer.data();
+        int *dyn = dynamic_layer.data();
+        int *stat = static_layer.data();
+        if (env[i_layer] > 0 && dyn[i_layer] > 0) {
+            dyn[i_layer] = 0;
+        }
+        if (dyn[i_layer] > 0 && stat[i_layer] < 100) {
+            stat[i_layer]++;
+        }
+        if (dyn[i_layer] > 0 && stat[i_layer] > STATIC_THRESH) {
+            dyn[i_layer] = 0;
+        }
     }
+    // ros::Time aftoverlap = ros::Time::now();
+    // ros::Duration diff = aftoverlap - b4overlap;
+    // std::cout << "overlap time diff: " << diff << std::endl;
+
+
+    // Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> env_mask = (env_layer.array() > 0);
+    // Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> dynamic_mask = (dynamic_layer.array() > 0);
+    // Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> env_dynamic_overlap = env_mask && dynamic_mask;
+    
+    // std::vector<int> env_dynamic_overlap_ind = find_nonzero(env_dynamic_overlap);
+    // // removing hits from dynamic layer if overlapped
+    // for (int i_o=0; i_o<env_dynamic_overlap_ind.size(); i_o++) {
+    //     std::vector<int> current_ind = ind_2_rc(env_dynamic_overlap_ind[i_o]);
+    //     dynamic_layer(current_ind[0], current_ind[1]) = 0;
+    // }
+
+
+
     // find overlap between new dynamic and static, 1 if true, 0 if false
-    Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> dynamic_mask_new = (dynamic_layer.array() > 0);
-    std::vector<int> dynamic_ind = find_nonzero(dynamic_mask_new);
-    // increment static layer values for those in dynamic
-    for (int i_dy=0; i_dy<dynamic_ind.size(); i_dy++) {
-        std::vector<int> current_ind = ind_2_rc(dynamic_ind[i_dy]);
-        if (static_layer(current_ind[1], current_ind[0]) < 100) {
-            static_layer(current_ind[1], current_ind[0])++;
-        }
-    }
-    Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> static_mask = (static_layer.array() >= STATIC_THRESH);
-    Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> dynamic_static_overlap = dynamic_mask_new && static_mask;
-    std::vector<int> dynamic_static_overlap_ind = find_nonzero(dynamic_static_overlap);
-    // increment static layer values for overlap, remove hits over thresh from dynamic
-    for (int i_d=0; i_d<dynamic_static_overlap_ind.size(); i_d++) {
-        std::vector<int> current_ind = ind_2_rc(dynamic_static_overlap_ind[i_d]);
-//        static_layer(current_ind[0], current_ind[1])++;
-        if (static_layer(current_ind[0], current_ind[1]) >= STATIC_THRESH) {
-            dynamic_layer(current_ind[0], current_ind[1]) = 0;
-        }
-    }
+//     Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> dynamic_mask_new = (dynamic_layer.array() > 0);
+//     std::vector<int> dynamic_ind = find_nonzero(dynamic_mask_new);
+//     // increment static layer values for those in dynamic
+//     for (int i_dy=0; i_dy<dynamic_ind.size(); i_dy++) {
+//         std::vector<int> current_ind = ind_2_rc(dynamic_ind[i_dy]);
+//         if (static_layer(current_ind[1], current_ind[0]) < 100) {
+//             static_layer(current_ind[1], current_ind[0])++;
+//         }
+//     }
+//     Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> static_mask = (static_layer.array() >= STATIC_THRESH);
+//     Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> dynamic_static_overlap = dynamic_mask_new && static_mask;
+//     std::vector<int> dynamic_static_overlap_ind = find_nonzero(dynamic_static_overlap);
+//     // increment static layer values for overlap, remove hits over thresh from dynamic
+//     for (int i_d=0; i_d<dynamic_static_overlap_ind.size(); i_d++) {
+//         std::vector<int> current_ind = ind_2_rc(dynamic_static_overlap_ind[i_d]);
+// //        static_layer(current_ind[0], current_ind[1])++;
+//         if (static_layer(current_ind[0], current_ind[1]) >= STATIC_THRESH) {
+//             dynamic_layer(current_ind[0], current_ind[1]) = 0;
+//         }
+//     }
 
     // publish to the topics
     pub_layers();
@@ -184,8 +212,40 @@ void Gridmap::pub_layers() {
     if (INIT) env_pub.publish(env_layer_msg);
 }
 
+// publish layers overload, boolean specifies if images are published
+void Gridmap::pub_layers(bool pub_image) {
+    // env layer not needed, already done in map callback
+    // static layer
+    nav_msgs::OccupancyGrid static_layer_msg;
+    static_layer_msg.info = all_map_metadata;
+    std::vector<int> static_data(static_layer.data(), static_layer.data()+static_layer.size());
+    // convert to int8
+    std::vector<int8_t> static_data_int8(static_data.begin(), static_data.end());
+    static_layer_msg.data = static_data_int8;
+
+    // dynamic layer
+    nav_msgs::OccupancyGrid dynamic_layer_msg;
+    dynamic_layer_msg.info = all_map_metadata;
+    std::vector<int> dynamic_data(dynamic_layer.data(), dynamic_layer.data()+dynamic_layer.size());
+    // convert to int8
+    std::vector<int8_t> dynamic_data_int8(dynamic_data.begin(), dynamic_data.end());
+    dynamic_layer_msg.data = dynamic_data_int8;
+
+    // publish
+    static_pub.publish(static_layer_msg);
+    dynamic_pub.publish(dynamic_layer_msg);
+    if (INIT) env_pub.publish(env_layer_msg);
+
+    if (pub_image) {
+        cv::Mat img = layers_2_cv_img();
+        cv::Mat transformed_img = transform_img(img);
+        sensor_msgs::ImagePtr ros_img = cv_2_ros_img(transformed_img);
+        image_pub.publish(ros_img);
+    }
+}
+
 // publish layers overload, specify layer and topic
-void Gridmap::pub_layers(Eigen::MatrixXi layer, ros::Publisher publisher) {
+void Gridmap::pub_layers(Eigen::MatrixXi &layer, ros::Publisher &publisher) {
     nav_msgs::OccupancyGrid layer_msg;
     layer_msg.info = all_map_metadata;
     std::vector<int> layer_data;
@@ -221,7 +281,7 @@ cv::Mat Gridmap::layers_2_cv_img() {
     return img;
 }
 // transform and crop image around car using tf
-cv::Mat Gridmap::transform_img(cv::Mat full_img) {
+cv::Mat Gridmap::transform_img(cv::Mat &full_img) {
     cv::Mat img;
     tf::StampedTransform transform;
     try {
@@ -257,7 +317,7 @@ cv::Mat Gridmap::transform_img(cv::Mat full_img) {
     return img;
 }
 // get roi from car center
-cv::Rect Gridmap::get_roi(std::vector<int> car_center) {
+cv::Rect Gridmap::get_roi(std::vector<int> &car_center) {
     cv::Rect car_roi(0,0,0,0);
     int car_x = car_center[1];
     int car_y = car_center[0];
@@ -269,21 +329,21 @@ cv::Rect Gridmap::get_roi(std::vector<int> car_center) {
     return car_roi;
 }
 // updates current frame image
-void Gridmap::update_img(cv::Mat img) {
+void Gridmap::update_img(cv::Mat &img) {
     current_img = cv_2_ros_img(img);
 }
-void Gridmap::update_img(sensor_msgs::ImagePtr img) {
+void Gridmap::update_img(sensor_msgs::ImagePtr &img) {
     current_img = img;
 }
 // conversions between ros and cv imgs
-sensor_msgs::ImagePtr Gridmap::cv_2_ros_img(cv::Mat img) {
+sensor_msgs::ImagePtr Gridmap::cv_2_ros_img(cv::Mat &img) {
     sensor_msgs::ImagePtr img_msg;
     if (!img.empty()) {
         img_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", img).toImageMsg();
     }
     return img_msg;
 }
-void Gridmap::cv_2_ros_img(cv::Mat img, ros::Publisher img_pub) {
+void Gridmap::cv_2_ros_img(cv::Mat &img, ros::Publisher &img_pub) {
     sensor_msgs::ImagePtr img_msg;
     if (!img.empty()) {
         img_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", img).toImageMsg();
@@ -291,7 +351,7 @@ void Gridmap::cv_2_ros_img(cv::Mat img, ros::Publisher img_pub) {
     img_pub.publish(img_msg);
     return;
 }
-cv::Mat Gridmap::ros_2_cv_img(sensor_msgs::ImagePtr img) {
+cv::Mat Gridmap::ros_2_cv_img(sensor_msgs::ImagePtr &img) {
     cv_bridge::CvImagePtr cv_ptr;
     try {
         cv_ptr = cv_bridge::toCvCopy(img, sensor_msgs::image_encodings::BGR8);
@@ -305,7 +365,7 @@ sensor_msgs::Image Gridmap::get_img() {
     return *current_img;
 }
 // converts given image to cv image
-cv::Mat Gridmap::get_cv_img(sensor_msgs::ImagePtr image) {
+cv::Mat Gridmap::get_cv_img(sensor_msgs::ImagePtr &image) {
     return ros_2_cv_img(image);
 }
 // overload, get current frame cv image
@@ -314,7 +374,7 @@ cv::Mat Gridmap::get_cv_img() {
 }
 
 // utils
-std::vector<int> Gridmap::find_nonzero(Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> arr) {
+std::vector<int> Gridmap::find_nonzero(Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> &arr) {
     std::vector<int> ind;
     for (int i=0; i<arr.size(); i++) {
         if (arr(i)) {
