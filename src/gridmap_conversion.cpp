@@ -13,11 +13,11 @@ GridmapConverter::GridmapConverter() {
     // image params
     img_width = 200;
     img_height = 200;
-    img_res = 0.5; // m/cell
+    img_res = 0.05; // m/cell
     car_x = img_width/2;
-    car_y = 50;
-    car_width = 20;
-    car_length = 30;
+    car_y = 185;
+    car_width = 10;
+    car_length = 12;
 
     ROS_INFO("Gridmap Converter created.");
 }
@@ -29,8 +29,8 @@ cv::Mat GridmapConverter::update_scan(std::vector<float> &ranges, std::vector<fl
     for (int i=0; i<scan_count; i++) {
         double range = ranges[i];
         if (std::isnan(range) || std::isinf(range)) continue;
-        double x = range*cos(angles_vector[i]), y = range*sin(angles_vector[i]);
-        double img_x = car_x + x/img_res, img_y = car_y + y/img_res;
+        double x = -range*sin(angles_vector[i]), y = range*cos(angles_vector[i]);
+        double img_x = car_x + x/img_res, img_y = car_y - y/img_res;
         if (out_of_bounds(img_x, img_y)) continue;
         cv::Point current_point(img_x, img_y);
         road_contour.push_back(current_point);
@@ -42,14 +42,14 @@ cv::Mat GridmapConverter::update_scan(std::vector<float> &ranges, std::vector<fl
     cv::Scalar road_color(100, 100, 100);
     cv::drawContours(img, contours, 0, road_color, CV_FILLED);
     // draw red car as box
-    cv::Point car_top_left(car_x-car_width/2, car_y+car_length/2);
-    cv::Point car_bot_right(car_x+car_width/2, car_y-car_length/2);
-    cv::rectangle(img, car_top_left, car_bot_right, cv::Scalar(0, 0, 255));
+    cv::Point car_top_left(car_x-car_width/2, car_y-car_length/2);
+    cv::Point car_bot_right(car_x+car_width/2, car_y+car_length/2);
+    cv::rectangle(img, car_top_left, car_bot_right, cv::Scalar(0, 0, 255), CV_FILLED);
     current_img = img.clone();
-    cv::namedWindow(OPENCV_WINDOW, CV_WINDOW_AUTOSIZE);
-    cv::imshow(OPENCV_WINDOW, img);
-    cv::waitKey(0);
-    cv::destroyAllWindows();
+    // cv::namedWindow(OPENCV_WINDOW, CV_WINDOW_AUTOSIZE);
+    // cv::imshow(OPENCV_WINDOW, img);
+    // cv::waitKey(0);
+    // cv::destroyAllWindows();
     return img;
 }
 

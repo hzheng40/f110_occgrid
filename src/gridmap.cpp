@@ -205,6 +205,10 @@ void Gridmap::scan_callback(const sensor_msgs::LaserScan::ConstPtr& scan_msg) {
 //         }
 //     }
 
+    cv::Mat new_img = converter.update_scan(current_scan, angles_vector, SCAN_COUNT);
+    sensor_msgs::ImagePtr new_ros_img = cv_2_ros_img(new_img);
+    image_pub.publish(new_ros_img);
+
     // publish to the topics
     pub_layers();
     // clear dynamic layer
