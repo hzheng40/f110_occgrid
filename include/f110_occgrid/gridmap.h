@@ -3,6 +3,7 @@
 #include <tf/transform_listener.h>
 #include <std_msgs/Float64MultiArray.h>
 #include <sensor_msgs/LaserScan.h>
+#include <sensor_msgs/image_encodings.h>
 #include <nav_msgs/OccupancyGrid.h>
 #include <nav_msgs/Odometry.h>
 #include <std_msgs/ColorRGBA.h>
@@ -13,6 +14,7 @@
 
 // service
 #include "f110_occgrid/ConvertMap.h"
+#include "f110_occgrid/gridmap_conversion.h"
 
 // standard stuff
 #include <math.h>
@@ -53,6 +55,8 @@ private:
     ros::Publisher static_pub;
     ros::Publisher dynamic_pub;
 
+    ros::ServiceServer service;
+
     ros::Subscriber scan_sub;
     ros::Subscriber map_sub;
 
@@ -77,6 +81,7 @@ private:
     // laser params
     bool LASER_INIT;
     std::vector<float> angles_vector;
+    std::vector<float> current_scan;
     int SCAN_COUNT;
 
     // occgrid params
@@ -87,6 +92,9 @@ private:
     image_transport::Publisher image_pub;
     sensor_msgs::ImagePtr current_img;
     int img_size;
+
+    // gridmap converter
+    GridmapConverter converter;
 
     // private methods
     void scan_callback(const sensor_msgs::LaserScan::ConstPtr& msg);
@@ -109,3 +117,4 @@ private:
     int coord_2_cell_ind(double x, double y);
     std::vector<int> coord_2_cell_rc(double x, double y);
 };
+

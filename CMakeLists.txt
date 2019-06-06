@@ -148,7 +148,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(gridmap_node src/gridmap_node.cpp src/gridmap.cpp)
+add_executable(gridmap_node src/gridmap_node.cpp src/gridmap.cpp src/gridmap_conversion.cpp)
 add_dependencies(gridmap_node ${catkin_EXPORTED_TARGETS})
 
 add_executable(gridmap_viz_node src/gridmap_viz.cpp)

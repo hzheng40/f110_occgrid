@@ -6,7 +6,7 @@ int main(int argc, char** argv)
 {
     ros::init(argc, argv, "map_conversion_client");
     ros::NodeHandle n;
-    ros::ServiceClient client = n.serviceClient<f110_occgrid::ConvertMap>("map_converter");
+    ros::ServiceClient client = n.serviceClient<f110_occgrid::ConvertMap>("convert_map");
     f110_occgrid::ConvertMap srv;
     if (client.call(srv)) {
         ROS_INFO("returned true");

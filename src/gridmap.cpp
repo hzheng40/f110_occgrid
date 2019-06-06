@@ -3,11 +3,13 @@
 Gridmap::~Gridmap() {
     ROS_INFO("Gridmap node shutting down");
 }
-Gridmap::Gridmap(ros::NodeHandle &nh) : nh_(nh), it(nh) {
+Gridmap::Gridmap(ros::NodeHandle &nh) : nh_(nh), it(nh), converter() {
     // publishers
     env_pub = nh_.advertise<nav_msgs::OccupancyGrid>("env_layer", 10);
     static_pub = nh_.advertise<nav_msgs::OccupancyGrid>("static_layer", 10);
     dynamic_pub = nh_.advertise<nav_msgs::OccupancyGrid>("dynamic_layer", 10);
+
+    service = nh_.advertiseService("convert_map", &Gridmap::get_converted_image, this);
 
     // subscribers
     scan_sub = nh_.subscribe("/scan", 10, &Gridmap::scan_callback, this);
@@ -31,6 +33,20 @@ Gridmap::Gridmap(ros::NodeHandle &nh) : nh_(nh), it(nh) {
     origin_y = origin.y;
     ROS_INFO("Map Metadata Loaded.");
 
+    boost::shared_ptr<sensor_msgs::LaserScan const> laser_ptr;
+    sensor_msgs::LaserScan laser_msg;
+    laser_ptr = ros::topic::waitForMessage<sensor_msgs::LaserScan>("/scan");
+    if (laser_ptr != NULL) {
+        laser_msg = *laser_ptr;
+    }
+    SCAN_COUNT = (laser_msg.ranges).size();
+    angles_vector.reserve(SCAN_COUNT);
+    current_scan.reserve(SCAN_COUNT);
+    for (int i=0; i<SCAN_COUNT; i++) {
+        angles_vector[i] = laser_msg.angle_min+laser_msg.angle_increment*i;
+    }
+    ROS_INFO("Laser Params Loaded.");
+
     // params/attr init
     INIT = false;
     INFLATION = 1;
@@ -48,9 +64,11 @@ Gridmap::Gridmap(ros::NodeHandle &nh) : nh_(nh), it(nh) {
     dynamic_layer.resize(map_height, map_width);
     dynamic_layer.setZero();
 
+    // converter = GridmapConverter();
+
     // making sure tf between map and laser is published before running
     ros::Time now = ros::Time::now();
-    listener.waitForTransform("/map", "/laser", now, ros::Duration(3.0));
+    listener.waitForTransform("/map", "/laser", now, ros::Duration(1.0));
     ROS_INFO("Transform arrived.");
 
     ROS_INFO("Gridmap node object init done.");
@@ -75,16 +93,17 @@ void Gridmap::map_callback(const nav_msgs::OccupancyGrid::ConstPtr& map_msg) {
 }
 
 void Gridmap::scan_callback(const sensor_msgs::LaserScan::ConstPtr& scan_msg) {
-    // fill laser params if it's the first time receiving info
-    if (!LASER_INIT) {
-        std::vector<float> ranges = scan_msg->ranges;
-        SCAN_COUNT = ranges.size();
-        angles_vector.reserve(SCAN_COUNT);
-        for (int i=0; i<SCAN_COUNT; i++) {
-            angles_vector[i] = scan_msg->angle_min + scan_msg->angle_increment*i;
-        }
-        LASER_INIT = true;
-    }
+    // // fill laser params if it's the first time receiving info
+    // if (!LASER_INIT) {
+    //     std::vector<float> ranges = scan_msg->ranges;
+    //     SCAN_COUNT = ranges.size();
+    //     angles_vector.reserve(SCAN_COUNT);
+    //     // current_scan.reserve(SCAN_COUNT);
+    //     for (int i=0; i<SCAN_COUNT; i++) {
+    //         angles_vector[i] = scan_msg->angle_min + scan_msg->angle_increment*i;
+    //     }
+    //     LASER_INIT = true;
+    // }
     // steps in laser callback:
     // 1. put everything in dynamic layer
     // 2. find overlap between dynamic and env, remove overlaps in dynamic
@@ -93,9 +112,11 @@ void Gridmap::scan_callback(const sensor_msgs::LaserScan::ConstPtr& scan_msg) {
     // NEW 3. previous doesn't work because there's no static to start with
     // new approach: before checking overlap, increment value that's in dynamic
     std::vector<float> ranges = scan_msg->ranges;
+    current_scan = ranges;
     // put scan into dynamic layer
     for (int i=0; i<SCAN_COUNT; i++) {
         double range = ranges[i];
+        // ROS_INFO("here");
         if (std::isnan(range) || std::isinf(range)) continue;
         // these are in the frame of /laser
         double x = range*cos(angles_vector[i]), y = range*sin(angles_vector[i]);
@@ -137,8 +158,11 @@ void Gridmap::scan_callback(const sensor_msgs::LaserScan::ConstPtr& scan_msg) {
         if (dyn[i_layer] > 0 && stat[i_layer] < 100) {
             stat[i_layer]++;
         }
-        if (dyn[i_layer] > 0 && stat[i_layer] > STATIC_THRESH) {
+        if (dyn[i_layer] > 0 && stat[i_layer] >= STATIC_THRESH) {
             dyn[i_layer] = 0;
+        }
+        if (stat[i_layer] >= STATIC_THRESH && env[i_layer] > 0) {
+            stat[i_layer] = 0;
         }
     }
     // ros::Time aftoverlap = ros::Time::now();
@@ -257,11 +281,12 @@ void Gridmap::pub_layers(Eigen::MatrixXi &layer, ros::Publisher &publisher) {
 
 // service function for conversion
 bool Gridmap::get_converted_image(f110_occgrid::ConvertMap::Request &req, f110_occgrid::ConvertMap::Response &res) {
-    cv::Mat img = layers_2_cv_img();
-    cv::Mat transformed_img = transform_img(img);
-    sensor_msgs::ImagePtr ros_img = cv_2_ros_img(transformed_img);
-    res.image = *ros_img;
-    update_img(transformed_img);
+    cv::Mat new_img = converter.update_scan(current_scan, angles_vector, SCAN_COUNT);
+    sensor_msgs::ImagePtr new_ros_img = cv_2_ros_img(new_img);
+    res.image = *new_ros_img;
+    image_pub.publish(new_ros_img);
+    // GridmapConverter converter;
+    // converter.update_scan(current_ranges, angles_vector, SCAN_COUNT);
     return true;
 }
 // utils for conversion

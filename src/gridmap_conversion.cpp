@@ -1,14 +1,15 @@
 #include "f110_occgrid/gridmap_conversion.h"
-#include "f110_occgrid/gridmap.h"
 
 GridmapConverter::~GridmapConverter() {
-    cv::destroyWindow(OPENCV_WINDOW);
+    try {
+        cv::destroyWindow(OPENCV_WINDOW);
+    } catch (cv::Exception ex) {
+        ROS_ERROR("Destructor error: %s", ex.what());
+    }
     ROS_INFO("Gridmap Converter shutting down.");
 }
 
 GridmapConverter::GridmapConverter() {
-    // laser init toggle
-    LASER_INIT = false;
     // image params
     img_width = 200;
     img_height = 200;
@@ -21,24 +22,12 @@ GridmapConverter::GridmapConverter() {
     ROS_INFO("Gridmap Converter created.");
 }
 
-void GridmapConverter::update_scan(const sensor_msgs::LaserScan::ConstPtr& scan_msg) {
-    // only first time updating scan
-    if (!LASER_INIT) {
-        std::vector<float> ranges = scan_msg->ranges;
-        scan = ranges;
-        SCAN_COUNT = scan.size();
-        angles_vector.reserve(SCAN_COUNT);
-        for (int i=0; i<SCAN_COUNT; i++) {
-            angles_vector[i] = scan_msg->angle_min + scan_msg->angle_increment*i;
-        }
-        LASER_INIT = true;
-    }
+cv::Mat GridmapConverter::update_scan(std::vector<float> &ranges, std::vector<float> &angles_vector, int scan_count) {
     // update scan and draw image
     std::vector<std::vector<cv::Point>> contours;
     std::vector<cv::Point> road_contour;
-    scan = scan_msg->ranges;
-    for (int i=0; i<SCAN_COUNT; i++) {
-        double range = scan[i];
+    for (int i=0; i<scan_count; i++) {
+        double range = ranges[i];
         if (std::isnan(range) || std::isinf(range)) continue;
         double x = range*cos(angles_vector[i]), y = range*sin(angles_vector[i]);
         double img_x = car_x + x/img_res, img_y = car_y + y/img_res;
@@ -57,8 +46,11 @@ void GridmapConverter::update_scan(const sensor_msgs::LaserScan::ConstPtr& scan_
     cv::Point car_bot_right(car_x+car_width/2, car_y-car_length/2);
     cv::rectangle(img, car_top_left, car_bot_right, cv::Scalar(0, 0, 255));
     current_img = img.clone();
-    cv::namedWindow(OPENCV_WINDOW, cv::WINDOW_AUTOSIZE);
+    cv::namedWindow(OPENCV_WINDOW, CV_WINDOW_AUTOSIZE);
     cv::imshow(OPENCV_WINDOW, img);
+    cv::waitKey(0);
+    cv::destroyAllWindows();
+    return img;
 }
 
 bool GridmapConverter::out_of_bounds(int img_x, int img_y) {

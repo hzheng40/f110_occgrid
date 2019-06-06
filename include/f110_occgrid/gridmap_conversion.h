@@ -22,7 +22,7 @@ public:
     virtual ~GridmapConverter();
     // service function
     bool get_converted_image(f110_occgrid::ConvertMap::Request &req, f110_occgrid::ConvertMap::Response &res);
-    void update_scan(const sensor_msgs::LaserScan::ConstPtr& scan_msg);
+    cv::Mat update_scan(std::vector<float> &ranges, std::vector<float> &angles_vector, int scan_count);
 private:
     // ros::NodeHandle nh_;
     // image_transport::ImageTransport it;
@@ -39,13 +39,6 @@ private:
 
     // std::vector<int> occgrid;
 
-
-
-    // scan params
-    std::vector<float> scan;
-    bool LASER_INIT;
-    int SCAN_COUNT;
-    std::vector<float> angles_vector;
     // image params
     int img_width, img_height;
     // fixed car center position in image;

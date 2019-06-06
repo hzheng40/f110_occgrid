@@ -35,7 +35,7 @@ GridmapViz::GridmapViz(ros::NodeHandle &nh) : nh_(nh) {
 
     // making sure tf between map and laser is published before running
     ros::Time now = ros::Time::now();
-    listener.waitForTransform("/map", "/laser", now, ros::Duration(3.0));
+    listener.waitForTransform("/map", "/laser", now, ros::Duration(1.0));
     ROS_INFO("Transform arrived.");
 }
 
